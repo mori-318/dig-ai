@@ -160,8 +160,7 @@ erDiagram
         VARCHAR name
         TEXT features_text
         TEXT appraisal_text
-        INT price_min
-        INT price_max
+        INT price
         DATETIME updated_at
         DATETIME created_at
     }
