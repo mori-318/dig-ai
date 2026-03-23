@@ -1,5 +1,3 @@
-from unittest import result
-
 from google import genai
 from google.genai import types
 import json
@@ -39,9 +37,15 @@ PROMPT_TEMPLATE = """
 """
 
 class BaseInfoExtractor:
-    def __init__(self, gemini_client: genai.Client, model="gemini-2.5-flash-lite"):
+    def __init__(
+            self,
+            gemini_client: genai.Client,
+            model="gemini-2.5-flash-lite",
+            prompt_template: str = PROMPT_TEMPLATE
+        ):
         self.gemini_client = gemini_client
         self.model = model
+        self.prompt_template = prompt_template
 
     def run(self, image_bytes: bytes) -> dict:
         response = self.gemini_client.models.generate_content(
@@ -51,7 +55,7 @@ class BaseInfoExtractor:
                     data=image_bytes,
                     mime_type="image/png",
                 ),
-                PROMPT_TEMPLATE
+                self.prompt_template
             ],
             config={
                 "response_mime_type": "application/json",
