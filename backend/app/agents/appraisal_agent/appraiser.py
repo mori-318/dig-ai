@@ -1,0 +1,69 @@
+from google import genai
+from google.genai import types
+import json
+
+PROMPT_TEMPLATE = """
+以下の特徴・観点と価格例を参考にして、与えられた画像の金額を鑑定してください。
+その際、なぜそのような結果になるか、step by stepで考えてその考えも出力してください。
+
+## 類似商品の特徴、査定理由、価格
+{item_descriptions}
+
+## 出力形式
+以下のJSON形式で、画像から抽出すべき項目を出力してください。
+{{
+    "appraisal_reason": "step by stepで考えた査定の理由。***日本語*",
+    "appraisal_price": "査定結果の金額 例: 1000円",
+}}
+
+## 出力例
+{{
+    "appraisal_reason": "価格例の参照: 「色が新品に近い場合は高め」とある。画像では発色が良く退色が少ないため、この観点は高評価寄り。\n価格例の参照: 「年代が古いほど限定性や歴史的価値で高価になることがある」とある。画像は古いモデルに見え、流通量も少なそうなので加点要素。\n価格例の参照: 「保存状態が良いほど減額が少ない」とある。目立つキズが見当たらず付属品も揃っているため、相場より上振れの可能性が高い。\n以上より、相場の中間価格よりやや高めの査定が妥当と判断した。",
+    "appraisal_price": "1000円"
+}}
+"""
+
+class Appraiser:
+    def __init__(
+            self,
+            gemini_client: genai.Client,
+            model="gemini-2.5-flash-lite",
+            prompt_template: str = PROMPT_TEMPLATE
+        ):
+        self.gemini_client = gemini_client
+        self.model = model
+        self.prompt_template = prompt_template
+
+    def run(self, similar_item_descriptions: list, image_bytes: bytes) -> dict:
+        prompt = self._construct_prompt(similar_item_descriptions)
+        response = self.gemini_client.models.generate_content(
+            model=self.model,
+            contents=[
+                types.Part.from_bytes(
+                    data=image_bytes,
+                    mime_type="image/png",
+                ),
+                prompt
+            ],
+            config={
+                "response_mime_type": "application/json",
+            }
+        )
+        return json.loads(response.text)
+
+    def _construct_prompt(self, similar_item_descriptions: list) -> str:
+        """
+        与えられた特徴、査定理由、価格のリストを、プロンプト内のテーブル形式の文字列に変換する。
+
+        Args:
+            similar_item_descriptions (list): 特徴、査定理由、価格のタプルのリスト。各要素は (特徴, 査定理由, 価格) の形式。
+        Returns:
+            str: モデルに与えるプロンプト。similar_item_descriptionsをマークダウンテーブル形式に変換してPROMPT_TEMPLATEに埋め込んだ文字列。
+        """
+        item_descriptions_str = "| No. | 特徴 | 査定理由 | 価格 |\n| --- | --- | --- | --- |\n"
+        for idx, (feature_text, appraisal_text, price) in enumerate(similar_item_descriptions, start=1):
+            item_descriptions_str += f"| {idx} | {feature_text} | {appraisal_text} | {price}円 |\n"
+
+        prompt = self.prompt_template.format(item_descriptions=item_descriptions_str)
+        print("Constructed Prompt:\n", prompt)  # デバッグ用にプロンプトを出力
+        return prompt
