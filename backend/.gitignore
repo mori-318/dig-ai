@@ -1,0 +1,33 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+.DS_Store
+
+.env
+.env.*
+
+.pytest_cache/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Coverage / reports
+.coverage
+htmlcov/
+
+# Packaging
+.eggs/
+
+# Logs / local data
+*.log
+*.sqlite3
