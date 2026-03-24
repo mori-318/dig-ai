@@ -4,14 +4,10 @@ from fastapi import UploadFile
 
 from ..agents import AppraisalAgent
 from ..schemas.appraisal_schemas import AppraisalResponse, AppraisalResult
-from .appraisal_state_manager import AppraisalStateManager
 
 
 class AppraisalService:
-    def __init__(
-        self, state_manager: AppraisalStateManager, appraisal_agent: AppraisalAgent
-    ) -> None:
-        self.state_manager = state_manager
+    def __init__(self, appraisal_agent: AppraisalAgent) -> None:
         self.appraisal_agent = appraisal_agent
 
     def _new_appraisal_id(self) -> str:

@@ -4,6 +4,7 @@ from redis import Redis
 from ..agents import AppraisalAgent
 from ..api.depends import get_appraisal_agent, get_redis_client
 from ..schemas.appraisal_schemas import AppraisalResponse, AppraisalResult
+from ..services.appraisal_service import AppraisalService
 
 router = APIRouter(prefix="/appraisal", tags=["appraisal"])
 
@@ -11,15 +12,12 @@ router = APIRouter(prefix="/appraisal", tags=["appraisal"])
 @router.post("/")
 async def start_appraisal(
     item_image: UploadFile = File(...),
-    redis_client: Redis = Depends(get_redis_client),
     appraisal_agent: AppraisalAgent = Depends(get_appraisal_agent),
 ) -> AppraisalResponse:
-    return AppraisalResponse(
-        status="retake_required",
-        appraisal_id="12345",
-        retake_message="ブランドタグが見えるように、もう一度撮影してください。",
-        retake_required_by="base_info",
+    service = AppraisalService(
+        appraisal_agent=appraisal_agent,
     )
+    return service.start_appraisal(item_image)
 
 
 @router.post("/{appraisal_id}/retake")
