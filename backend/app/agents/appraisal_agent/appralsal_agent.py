@@ -6,8 +6,8 @@ from .base_info_extractor import BaseInfoExtractor
 
 
 class AppraisalAgent:
-    def __init__(self, item_info_tool):
-        self.item_info_tool = item_info_tool
+    def __init__(self, find_similar_items):
+        self.find_similar_items = find_similar_items
         self.gemini_client = create_gemini_client()
         self.base_info_extractor = BaseInfoExtractor(self.gemini_client)
         self.appraiser = Appraiser(self.gemini_client)
@@ -25,7 +25,7 @@ class AppraisalAgent:
             }
 
         # 類似商品をツールから取得
-        similar_items = self.item_info_tool(
+        similar_items = self.find_similar_items(
             brand=base_info_result["brand"],
             category=base_info_result["category"],
         )
