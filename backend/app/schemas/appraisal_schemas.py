@@ -4,6 +4,8 @@ from pydantic import BaseModel, model_validator
 
 
 class AppraisalResult(BaseModel):
+    brand: str
+    category: str
     appraisal_price: int
     appraisal_reason: str
 
@@ -13,7 +15,7 @@ class AppraisalResponse(BaseModel):
     appraisal_id: str
     result: Optional[AppraisalResult] = None
     retake_message: Optional[str] = None
-    retake_required_by: Optional[Literal["base_info", "detailed_info"]] = None
+    retake_required_by: Optional[Literal["base_info", "appraiser"]] = None
 
     @model_validator(mode="after")
     def validate_status(self) -> "AppraisalResponse":

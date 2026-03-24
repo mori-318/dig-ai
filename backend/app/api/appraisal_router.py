@@ -30,6 +30,8 @@ async def retake_appraisal(
         status="done",
         appraisal_id=appraisal_id,
         result=AppraisalResult(
+            brand="Brand A",
+            category="Category X",
             appraisal_price=13500,
             appraisal_reason="査定例のダミー理由です。",
         ),
