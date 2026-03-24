@@ -32,5 +32,5 @@ class ItemRepository:
         params = (brand_id, brand_id, category_id, category_id, top_n)
         with self.mysql_client.cursor() as cursor:
             cursor.execute(sql, params)
-            results = cursor.fetchall()
+            results = list(cursor.fetchall())
         return results
