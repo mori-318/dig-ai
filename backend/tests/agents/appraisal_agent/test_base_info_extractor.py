@@ -5,6 +5,7 @@ from tests.conftest import SWEATSHIRT_IMAGE_PATH, WHITE_WALL_IMAGE_PATH
 
 load_dotenv()
 
+
 def test_base_info_extractor_with_sweatshirt_image():
     """
     スウェットシャツの画像を入力として、ブランドが特定できない場合に再撮影の指示が含まれることを確認するテスト

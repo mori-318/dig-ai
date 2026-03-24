@@ -1,6 +1,7 @@
+import json
+
 from google import genai
 from google.genai import types
-import json
 
 PROMPT_TEMPLATE = """
 以下の特徴・観点と価格例を参考にして、与えられた画像の金額を鑑定してください。
@@ -23,13 +24,14 @@ PROMPT_TEMPLATE = """
 }}
 """
 
+
 class Appraiser:
     def __init__(
-            self,
-            gemini_client: genai.Client,
-            model="gemini-2.5-flash-lite",
-            prompt_template: str = PROMPT_TEMPLATE
-        ):
+        self,
+        gemini_client: genai.Client,
+        model="gemini-2.5-flash-lite",
+        prompt_template: str = PROMPT_TEMPLATE,
+    ):
         self.gemini_client = gemini_client
         self.model = model
         self.prompt_template = prompt_template
@@ -43,17 +45,16 @@ class Appraiser:
                     data=image_bytes,
                     mime_type="image/png",
                 ),
-                prompt
+                prompt,
             ],
             config={
                 "response_mime_type": "application/json",
-            }
+            },
         )
         return json.loads(response.text)
 
     def _construct_prompt(self, similar_item_descriptions: list) -> str:
-        """
-        与えられた特徴、査定理由、価格のリストを、プロンプト内のテーブル形式の文字列に変換する。
+        """与えられた特徴、査定理由、価格のリストを、プロンプト内のテーブル形式の文字列に変換する。
 
         Args:
             similar_item_descriptions (list): 特徴、査定理由、価格のタプルのリスト。各要素は (特徴, 査定理由, 価格) の形式。
@@ -61,9 +62,10 @@ class Appraiser:
             str: モデルに与えるプロンプト。similar_item_descriptionsをマークダウンテーブル形式に変換してPROMPT_TEMPLATEに埋め込んだ文字列。
         """
         item_descriptions_str = "| No. | 特徴 | 査定理由 | 価格 |\n| --- | --- | --- | --- |\n"
-        for idx, (feature_text, appraisal_text, price) in enumerate(similar_item_descriptions, start=1):
+        for idx, (feature_text, appraisal_text, price) in enumerate(
+            similar_item_descriptions, start=1
+        ):
             item_descriptions_str += f"| {idx} | {feature_text} | {appraisal_text} | {price}円 |\n"
 
         prompt = self.prompt_template.format(item_descriptions=item_descriptions_str)
-        print("Constructed Prompt:\n", prompt)  # デバッグ用にプロンプトを出力
         return prompt

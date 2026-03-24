@@ -1,12 +1,11 @@
-from typing import Any, Dict, Literal, Optional
+from typing import Literal, Optional
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, model_validator
+
 
 class AppraisalResult(BaseModel):
-    category: str
-    brand: str
-    price: int
-    attributes: Dict[str, Any] = Field(default_factory=dict)
+    appraisal_price: int
+    appraisal_reason: str
 
 
 class AppraisalResponse(BaseModel):

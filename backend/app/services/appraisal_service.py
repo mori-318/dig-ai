@@ -5,6 +5,7 @@ from fastapi import UploadFile
 
 from ..schemas.appraisal_schemas import AppraisalResponse, AppraisalResult
 
+
 class AppraisalService:
     def __init__(self, state_store: AppraisalStateStore, appraisal_agent) -> None:
         self.state_store = state_store
@@ -14,4 +15,3 @@ class AppraisalService:
 
     def start_appraisal(self, image: UploadFile) -> AppraisalResponse:
         appraisal_id = self._new_appraisal_id()
-

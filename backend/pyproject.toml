@@ -23,3 +23,29 @@ dev = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py312"
+lint.select = [
+    "F",  # pyflakes
+    "E",  # pycodestyle
+    "W",  # pycodestyle warnings
+    "I",  # isort
+    "D",  # pydocstyle
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+]
+lint.ignore = [
+    "D105", # undocumented-magic-method
+    "D107", # undocumented-public-init
+    "D205", # blank-line-after-summary
+    "E402", # sys path before import
+    "D415", # ends-in-punctuation
+]
+line-length = 100
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "D"] # __init__.pyは未使用インポートとドキュメントを無視

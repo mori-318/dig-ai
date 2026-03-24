@@ -1,6 +1,7 @@
+import json
+
 from google import genai
 from google.genai import types
-import json
 
 PROMPT_TEMPLATE = """
 与えられた画像から、以下の情報を抽出して、出力形式に従ってJSON形式で出力してください。
@@ -36,13 +37,14 @@ PROMPT_TEMPLATE = """
 }
 """
 
+
 class BaseInfoExtractor:
     def __init__(
-            self,
-            gemini_client: genai.Client,
-            model="gemini-2.5-flash-lite",
-            prompt_template: str = PROMPT_TEMPLATE
-        ):
+        self,
+        gemini_client: genai.Client,
+        model="gemini-2.5-flash-lite",
+        prompt_template: str = PROMPT_TEMPLATE,
+    ):
         self.gemini_client = gemini_client
         self.model = model
         self.prompt_template = prompt_template
@@ -55,10 +57,10 @@ class BaseInfoExtractor:
                     data=image_bytes,
                     mime_type="image/png",
                 ),
-                self.prompt_template
+                self.prompt_template,
             ],
             config={
                 "response_mime_type": "application/json",
-            }
+            },
         )
         return json.loads(response.text)
