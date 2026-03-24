@@ -11,30 +11,29 @@ load_dotenv()
 
 
 @pytest.fixture
-def item_repository():
+def mysql_client():
+    """テスト用のmysqlクライアントを提供するpytestフィクスチャ。"""
+    mysql_client = create_mysql_client(database="dig_ai_db_test")
+    yield mysql_client
+    mysql_client.close()
+
+
+@pytest.fixture
+def item_repository(mysql_client):
     """テスト用のItemRepositoryインスタンスを提供するpytestフィクスチャ。"""
-    mysql_client = create_mysql_client(database="dig_ai_db_test")
-    repository = ItemRepository(mysql_client)
-    yield repository
-    mysql_client.close()
+    return ItemRepository(mysql_client)
 
 
 @pytest.fixture
-def brand_repository():
+def brand_repository(mysql_client):
     """テスト用のBrandRepositoryインスタンスを提供するpytestフィクスチャ。"""
-    mysql_client = create_mysql_client(database="dig_ai_db_test")
-    repository = BrandRepository(mysql_client)
-    yield repository
-    mysql_client.close()
+    return BrandRepository(mysql_client)
 
 
 @pytest.fixture
-def category_repository():
+def category_repository(mysql_client):
     """テスト用のCategoryRepositoryインスタンスを提供するpytestフィクスチャ。"""
-    mysql_client = create_mysql_client(database="dig_ai_db_test")
-    repository = CategoryRepository(mysql_client)
-    yield repository
-    mysql_client.close()
+    return CategoryRepository(mysql_client)
 
 
 def test_find_similar_items_with_existing_brand_and_category(
