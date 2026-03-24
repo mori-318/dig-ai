@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, File, UploadFile
 from redis import Redis
 
-from ..agents.appraisal_agent import AppraisalAgent
+from ..agents import AppraisalAgent
 from ..api.depends import get_appraisal_agent, get_redis_client
 from ..schemas.appraisal_schemas import AppraisalResponse, AppraisalResult
 

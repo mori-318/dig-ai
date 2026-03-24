@@ -1,6 +1,6 @@
 from functools import partial
 
-from .agents.appraisal_agent import AppraisalAgent
+from .agents import AppraisalAgent
 from .agents.tools.find_similar_items import find_similar_items
 from .repositories.brand_repository import BrandRepository
 from .repositories.category_repository import CategoryRepository
