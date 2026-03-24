@@ -1,5 +1,5 @@
 from threading import Lock
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class AppraisalStateStore:
@@ -19,7 +19,7 @@ class AppraisalStateStore:
             current.update(changes)
             self._data[thread_id] = current
 
-    def get(self, thread_id: str) -> Optional[Dict[str, Any]]:
+    def get(self, thread_id: str) -> dict[str, Any] | None:
         with self._lock:
             return self._data.get(thread_id)
 
