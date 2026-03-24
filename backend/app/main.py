@@ -16,9 +16,7 @@ async def lifespan(app: FastAPI):
     # 起動時
     app.state.redis_client = create_redis_client()
     app.state.mysql_client = create_mysql_client()
-    app.state.appraisal_state_manager = build_appraisal_state_manager(
-        app.state.redis_client
-    )
+    app.state.appraisal_state_manager = build_appraisal_state_manager(app.state.redis_client)
     app.state.appraisal_agent = build_appraisal_agent(
         app.state.mysql_client,
         app.state.appraisal_state_manager,
