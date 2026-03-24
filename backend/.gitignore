@@ -12,7 +12,6 @@ wheels/
 .DS_Store
 
 .env
-.env.*
 
 .pytest_cache/
 
