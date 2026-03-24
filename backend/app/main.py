@@ -22,6 +22,12 @@ async def lifespan(app: FastAPI):
         app.state.appraisal_state_manager,
     )
 
+    # 接続確認（起動時）
+    print("Running startup checks...")
+    app.state.redis_client.ping()
+    with app.state.mysql_client.cursor() as cursor:
+        cursor.execute("SELECT 1")
+
     yield
     app.state.redis_client.close()
     app.state.mysql_client.close()
