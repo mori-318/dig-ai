@@ -70,7 +70,30 @@ class AppraisalAgent:
             image_bytes: 査定対象の画像のバイト列
 
         Returns:
-            査定結果を含む辞書。再撮影が必要な場合は再撮影の指示を含む辞書。
+            以下いずれかの辞書を返す。
+
+            - status == "done" の場合:
+              {
+                "status": "done",
+                "appraisal_id": str,
+                "result": {
+                  "brand": str,
+                  "category": str,
+                  "appraisal_price": int,   # 類似商品が無い場合は -1
+                  "appraisal_reason": str
+                }
+              }
+
+            - status == "retake_required" の場合:
+              {
+                "status": "retake_required",
+                "appraisal_id": str,
+                "retake_message": str,
+                "retake_required_by": "base_info" | "appraiser"
+              }
+
+            - 途中状態のまま返す場合（再開不可・処理中など）:
+              Redis に保存済みの状態辞書（status が "processing" など）。
         """
         (
             existing_state,
