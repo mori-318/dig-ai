@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic import BaseModel, model_validator
 
@@ -34,9 +34,9 @@ class AppraisalResponse(BaseModel):
 
     status: Literal["done", "retake_required"]
     appraisal_id: str
-    result: AppraisalResult | None = None
-    retake_message: str | None = None
-    retake_required_by: Literal["base_info", "appraiser"] | None = None
+    result: Optional[AppraisalResult] = None
+    retake_message: Optional[str] = None
+    retake_required_by: Optional[Literal["base_info", "appraiser"]] = None
 
     @model_validator(mode="after")
     def validate_status(self) -> "AppraisalResponse":
