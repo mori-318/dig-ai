@@ -35,22 +35,3 @@ def find_similar_items(
         )
 
     return result
-
-
-def build_find_similar_items_tool(
-    item_repository: ItemRepository,
-    brand_repository: BrandRepository,
-    category_repository: CategoryRepository,
-):
-    """DI済みの類似商品検索ツールを返すヘルパー関数。"""
-
-    def _tool(brand: str, category: str) -> list[dict]:
-        return find_similar_items(
-            brand=brand,
-            category=category,
-            item_repository=item_repository,
-            brand_repository=brand_repository,
-            category_repository=category_repository,
-        )
-
-    return _tool
