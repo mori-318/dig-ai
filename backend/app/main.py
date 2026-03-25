@@ -24,9 +24,16 @@ async def lifespan(app: FastAPI):
 
     # 接続確認（起動時）
     print("Running startup checks...")
-    app.state.redis_client.ping()
-    with app.state.mysql_client.cursor() as cursor:
-        cursor.execute("SELECT 1")
+    try:
+        app.state.redis_client.ping()
+    except Exception as e:
+        raise ConnectionError(f"Failed to connect to Redis: {e}") from e
+
+    try:
+        with app.state.mysql_client.cursor() as cursor:
+            cursor.execute("SELECT 1")
+    except Exception as e:
+        raise ConnectionError(f"Failed to connect to MySQL: {e}") from e
 
     yield
     app.state.redis_client.close()
