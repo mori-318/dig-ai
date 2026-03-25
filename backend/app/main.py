@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from logging import Formatter, StreamHandler, getLogger
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
@@ -9,11 +10,19 @@ from .infra.db import create_mysql_client, create_redis_client
 
 load_dotenv()
 
+formatter = Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+stream_handler = StreamHandler()
+stream_handler.setFormatter(formatter)
+logger = getLogger(__name__)
+logger.addHandler(stream_handler)
+logger.setLevel("INFO")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """アプリケーションのライフサイクルイベントを管理するためのコンテキストマネージャー。"""
-    # 起動時
+    # リソースの初期化
+    logger.info("Startup: initializing resources")
     app.state.redis_client = create_redis_client()
     app.state.mysql_client = create_mysql_client()
     app.state.appraisal_state_manager = build_appraisal_state_manager(app.state.redis_client)
@@ -22,18 +31,22 @@ async def lifespan(app: FastAPI):
         app.state.appraisal_state_manager,
     )
 
-    # 接続確認（起動時）
-    print("Running startup checks...")
+    # 接続確認
+    logger.info("Startup: running checks")
     try:
         app.state.redis_client.ping()
     except Exception as e:
+        logger.exception("Startup: failed to connect to Redis")
         raise ConnectionError(f"Failed to connect to Redis: {e}") from e
 
     try:
         with app.state.mysql_client.cursor() as cursor:
             cursor.execute("SELECT 1")
     except Exception as e:
+        logger.exception("Startup: failed to connect to MySQL")
         raise ConnectionError(f"Failed to connect to MySQL: {e}") from e
+
+    logger.info("Startup: checks passed")
 
     yield
     app.state.redis_client.close()
