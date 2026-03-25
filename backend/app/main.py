@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from logging import Formatter, StreamHandler, getLogger
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 
 from .api.appraisal_router import router as appraisal_router
 from .container import build_appraisal_agent, build_appraisal_state_manager

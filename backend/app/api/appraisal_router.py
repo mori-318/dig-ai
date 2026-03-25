@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, File, UploadFile
-from redis import Redis
 
 from ..agents import AppraisalAgent
 from ..api.depends import get_appraisal_agent, get_redis_client

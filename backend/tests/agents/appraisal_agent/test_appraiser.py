@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from app.agents.appraisal_agent.appraiser import Appraiser
 from app.agents.client import create_gemini_client
-from tests.conftest import SWEATSHIRT_IMAGE_PATH, WHITE_WALL_IMAGE_PATH
+from tests.conftest import SWEATSHIRT_IMAGE_PATH
 
 load_dotenv()
 
