@@ -1,8 +1,11 @@
+import { Route, Routes } from 'react-router-dom'
+import AppraisalPage from './pages/AppraisalPage'
+
 function App() {
   return (
-    <div className="p-4 bg-amber-200">
-      <h1>Hello World</h1>
-    </div>
+    <Routes>
+      <Route path="/" element={<AppraisalPage />} />
+    </Routes>
   )
 }
 
