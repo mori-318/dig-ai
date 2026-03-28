@@ -3,6 +3,7 @@ from logging import Formatter, StreamHandler, getLogger
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .api.appraisal_router import router as appraisal_router
 from .container import build_appraisal_agent, build_appraisal_state_manager
@@ -55,6 +56,13 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(appraisal_router)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
