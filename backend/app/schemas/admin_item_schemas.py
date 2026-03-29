@@ -4,9 +4,9 @@ from pydantic import BaseModel, Field
 class CreateAdminItemRequest(BaseModel):
     """管理者向けアイテム作成リクエスト。"""
 
-    brand_id: int
-    category_id: int
-    name: str
+    brand_name: str = Field(..., min_length=1, max_length=255)
+    category_name: str = Field(..., min_length=1, max_length=255)
+    name: str = Field(..., min_length=1, max_length=255)
     features_text: str
     appraisal_text: str
     price: int | None = None

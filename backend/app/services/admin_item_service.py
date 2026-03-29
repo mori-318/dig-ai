@@ -12,8 +12,8 @@ class AdminItemService:
     def create_item(
         self,
         *,
-        brand_id: int,
-        category_id: int,
+        brand_name: str,
+        category_name: str,
         name: str,
         features_text: str,
         appraisal_text: str,
@@ -21,8 +21,8 @@ class AdminItemService:
     ) -> dict:
         """アイテムを新規作成するメソッド。
         Args:
-            brand_id (int): ブランドID。
-            category_id (int): カテゴリID。
+            brand_name (str): ブランド名。
+            category_name (str): カテゴリ名。
             name (str): アイテム名。
             features_text (str): アイテムの特徴を説明するテキスト。
             appraisal_text (str): アイテムの査定に関する説明テキスト。
@@ -30,9 +30,24 @@ class AdminItemService:
         Returns:
             dict: 作成されたアイテムの情報を含む辞書。
         """
+        normalized_brand_name = brand_name.strip()
+        normalized_category_name = category_name.strip()
+        if not normalized_brand_name:
+            raise ValueError("brand name is required")
+        if not normalized_category_name:
+            raise ValueError("category name is required")
+
+        brand = self.brand_repository.find_by_name(normalized_brand_name)
+        if brand is None:
+            brand = self.brand_repository.create_brand(normalized_brand_name)
+
+        category = self.category_repository.find_by_name(normalized_category_name)
+        if category is None:
+            category = self.category_repository.create_category(normalized_category_name)
+
         return self.item_repository.create_item(
-            brand_id=brand_id,
-            category_id=category_id,
+            brand_id=brand["id"],
+            category_id=category["id"],
             name=name,
             features_text=features_text,
             appraisal_text=appraisal_text,

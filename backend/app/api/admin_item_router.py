@@ -22,7 +22,10 @@ async def create_item(
     admin_item_service: AdminItemService = Depends(get_admin_item_service),
 ):
     """管理者が古着アイテム情報を新規作成する。"""
-    item = admin_item_service.create_item(**payload.model_dump())
+    try:
+        item = admin_item_service.create_item(**payload.model_dump())
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     return AdminItemResponse(**item)
 
 
