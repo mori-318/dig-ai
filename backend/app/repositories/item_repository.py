@@ -34,3 +34,36 @@ class ItemRepository:
             cursor.execute(sql, params)
             results = list(cursor.fetchall())
         return results
+
+    def create_item(
+        self,
+        brand_id: int,
+        category_id: int,
+        name: str,
+        features_text: str = "",
+        appraisal_text: str = "",
+        price: int | None = None,
+    ) -> dict:
+        """アイテムを作成して作成結果を返す。"""
+        insert_sql = """
+        INSERT INTO items (brand_id, category_id, name, features_text, appraisal_text, price)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        params = (brand_id, category_id, name, features_text, appraisal_text, price)
+        with self.mysql_client.cursor() as cursor:
+            cursor.execute(insert_sql, params)
+            item_id = cursor.lastrowid
+        self.mysql_client.commit()
+
+        select_sql = """
+        SELECT
+            id, brand_id, category_id, name, features_text, appraisal_text,
+            price, updated_at, created_at
+        FROM items
+        WHERE id = %s
+        LIMIT 1
+        """
+        with self.mysql_client.cursor() as cursor:
+            cursor.execute(select_sql, (item_id,))
+            result = cursor.fetchone()
+        return result
