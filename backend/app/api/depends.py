@@ -6,6 +6,11 @@ def get_redis_client(request: Request):
     return request.app.state.redis_client
 
 
+def get_mysql_client(request: Request):
+    """FastAPIのRequestオブジェクトからMySQLクライアントを取得する依存関数。"""
+    return request.app.state.mysql_client
+
+
 def get_appraisal_agent(request: Request):
     """FastAPIのRequestオブジェクトからAppraisalAgentを取得する依存関数。"""
     return request.app.state.appraisal_agent
