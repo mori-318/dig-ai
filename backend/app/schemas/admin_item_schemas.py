@@ -37,6 +37,12 @@ class Brand(BaseModel):
     name: str
 
 
+class CreateBrandRequest(BaseModel):
+    """ブランド作成リクエスト。"""
+
+    name: str = Field(..., min_length=1, max_length=255)
+
+
 class SuggestBrandResponse(BaseModel):
     """ブランドのサジェストレスポンス。"""
 
@@ -54,6 +60,12 @@ class Category(BaseModel):
 
     id: int
     name: str
+
+
+class CreateCategoryRequest(BaseModel):
+    """カテゴリ作成リクエスト。"""
+
+    name: str = Field(..., min_length=1, max_length=255)
 
 
 class SuggestCategoryResponse(BaseModel):

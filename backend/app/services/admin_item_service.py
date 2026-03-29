@@ -44,7 +44,27 @@ class AdminItemService:
         brands = self.brand_repository.suggest_brands(q, limit)
         return [Brand(**brand) for brand in brands]
 
+    def create_brand(self, name: str) -> Brand:
+        """ブランドを新規作成するメソッド。"""
+        normalized_name = name.strip()
+        if not normalized_name:
+            raise ValueError("brand name is required")
+        if self.brand_repository.find_by_name(normalized_name) is not None:
+            raise ValueError("brand already exists")
+        created = self.brand_repository.create_brand(normalized_name)
+        return Brand(**created)
+
     def suggest_categories(self, q: str, limit: int = 20) -> list[Category]:
         """入力途中の文字列に基づいてカテゴリをサジェストするメソッド。"""
         categories = self.category_repository.suggest_categories(q, limit)
         return [Category(**category) for category in categories]
+
+    def create_category(self, name: str) -> Category:
+        """カテゴリを新規作成するメソッド。"""
+        normalized_name = name.strip()
+        if not normalized_name:
+            raise ValueError("category name is required")
+        if self.category_repository.find_by_name(normalized_name) is not None:
+            raise ValueError("category already exists")
+        created = self.category_repository.create_category(normalized_name)
+        return Category(**created)
