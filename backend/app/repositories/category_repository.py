@@ -17,6 +17,19 @@ class CategoryRepository:
             result = cursor.fetchone()
         return result
 
+    def find_by_id(self, category_id: int) -> dict | None:
+        """カテゴリIDからカテゴリ情報を取得する。"""
+        sql = """
+        SELECT id, name, created_at
+        FROM categories
+        WHERE id = %s
+        LIMIT 1
+        """
+        with self.mysql_client.cursor() as cursor:
+            cursor.execute(sql, (category_id,))
+            result = cursor.fetchone()
+        return result
+
     def find_id_by_name(self, name: str) -> int | None:
         """カテゴリ名からカテゴリIDを取得する。"""
         category = self.find_by_name(name)
@@ -32,14 +45,18 @@ class CategoryRepository:
             cursor.execute(insert_sql, (name,))
             category_id = cursor.lastrowid
         self.mysql_client.commit()
+        return self.find_by_id(category_id)
 
-        select_sql = """
-        SELECT id, name, created_at
+    def suggest_categories(self, q: str, limit: int = 20) -> list[dict]:
+        """入力途中の文字列に一致するカテゴリ候補を返す。"""
+        sql = """
+        SELECT id, name
         FROM categories
-        WHERE id = %s
-        LIMIT 1
+        WHERE name LIKE CONCAT('%', %s, '%')
+        ORDER BY name ASC
+        LIMIT %s
         """
         with self.mysql_client.cursor() as cursor:
-            cursor.execute(select_sql, (category_id,))
-            result = cursor.fetchone()
-        return result
+            cursor.execute(sql, (q, limit))
+            results = list(cursor.fetchall())
+        return results

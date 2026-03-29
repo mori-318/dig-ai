@@ -35,6 +35,21 @@ class ItemRepository:
             results = list(cursor.fetchall())
         return results
 
+    def find_by_id(self, item_id: int) -> dict | None:
+        """アイテムIDからアイテム情報を取得する。"""
+        sql = """
+        SELECT
+            id, brand_id, category_id, name, features_text, appraisal_text,
+            price, updated_at, created_at
+        FROM items
+        WHERE id = %s
+        LIMIT 1
+        """
+        with self.mysql_client.cursor() as cursor:
+            cursor.execute(sql, (item_id,))
+            result = cursor.fetchone()
+        return result
+
     def create_item(
         self,
         brand_id: int,
@@ -54,16 +69,4 @@ class ItemRepository:
             cursor.execute(insert_sql, params)
             item_id = cursor.lastrowid
         self.mysql_client.commit()
-
-        select_sql = """
-        SELECT
-            id, brand_id, category_id, name, features_text, appraisal_text,
-            price, updated_at, created_at
-        FROM items
-        WHERE id = %s
-        LIMIT 1
-        """
-        with self.mysql_client.cursor() as cursor:
-            cursor.execute(select_sql, (item_id,))
-            result = cursor.fetchone()
-        return result
+        return self.find_by_id(item_id)

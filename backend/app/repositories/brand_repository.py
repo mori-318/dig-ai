@@ -17,6 +17,19 @@ class BrandRepository:
             result = cursor.fetchone()
         return result
 
+    def find_by_id(self, brand_id: int) -> dict | None:
+        """ブランドIDからブランド情報を取得する。"""
+        sql = """
+        SELECT id, name, created_at
+        FROM brands
+        WHERE id = %s
+        LIMIT 1
+        """
+        with self.mysql_client.cursor() as cursor:
+            cursor.execute(sql, (brand_id,))
+            result = cursor.fetchone()
+        return result
+
     def find_id_by_name(self, name: str) -> int | None:
         """ブランド名からブランドIDを取得する。"""
         brand = self.find_by_name(name)
@@ -32,14 +45,18 @@ class BrandRepository:
             cursor.execute(insert_sql, (name,))
             brand_id = cursor.lastrowid
         self.mysql_client.commit()
+        return self.find_by_id(brand_id)
 
-        select_sql = """
-        SELECT id, name, created_at
+    def suggest_brands(self, q: str, limit: int = 20) -> list[dict]:
+        """入力途中の文字列に一致するブランド候補を返す。"""
+        sql = """
+        SELECT id, name
         FROM brands
-        WHERE id = %s
-        LIMIT 1
+        WHERE name LIKE CONCAT('%', %s, '%')
+        ORDER BY name ASC
+        LIMIT %s
         """
         with self.mysql_client.cursor() as cursor:
-            cursor.execute(select_sql, (brand_id,))
-            result = cursor.fetchone()
-        return result
+            cursor.execute(sql, (q, limit))
+            results = list(cursor.fetchall())
+        return results
