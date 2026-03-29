@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .api.admin_item_router import router as admin_item_router
 from .api.appraisal_router import router as appraisal_router
 from .container import build_appraisal_agent, build_appraisal_state_manager
 from .infra.db import create_mysql_client, create_redis_client
@@ -56,6 +57,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(appraisal_router)
+app.include_router(admin_item_router)
 
 app.add_middleware(
     CORSMiddleware,

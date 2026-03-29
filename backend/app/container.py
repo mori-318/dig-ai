@@ -5,6 +5,7 @@ from .agents.tools.find_similar_items import find_similar_items
 from .repositories.brand_repository import BrandRepository
 from .repositories.category_repository import CategoryRepository
 from .repositories.item_repository import ItemRepository
+from .services.admin_item_service import AdminItemService
 from .services.appraisal_state_manager import AppraisalStateManager
 
 
@@ -28,3 +29,11 @@ def build_appraisal_agent(mysql_client, state_manager) -> AppraisalAgent:
 def build_appraisal_state_manager(redis_client) -> AppraisalStateManager:
     """AppraisalStateManagerを依存関係込みで生成する。"""
     return AppraisalStateManager(redis_client)
+
+
+def build_admin_item_service(mysql_client) -> AdminItemService:
+    """AdminItemServiceを依存関係込みで生成する。"""
+    item_repository = ItemRepository(mysql_client)
+    brand_repository = BrandRepository(mysql_client)
+    category_repository = CategoryRepository(mysql_client)
+    return AdminItemService(item_repository, brand_repository, category_repository)
