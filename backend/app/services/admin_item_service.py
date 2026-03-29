@@ -12,8 +12,8 @@ class AdminItemService:
     def create_item(
         self,
         *,
-        brand_name: str,
-        category_name: str,
+        brand: str,
+        category: str,
         name: str,
         features_text: str,
         appraisal_text: str,
@@ -21,8 +21,8 @@ class AdminItemService:
     ) -> dict:
         """アイテムを新規作成するメソッド。
         Args:
-            brand_name (str): ブランド名。
-            category_name (str): カテゴリ名。
+            brand (str): ブランド名。
+            category (str): カテゴリ名。
             name (str): アイテム名。
             features_text (str): アイテムの特徴を説明するテキスト。
             appraisal_text (str): アイテムの査定に関する説明テキスト。
@@ -30,8 +30,8 @@ class AdminItemService:
         Returns:
             dict: 作成されたアイテムの情報を含む辞書。
         """
-        normalized_brand_name = brand_name.strip()
-        normalized_category_name = category_name.strip()
+        normalized_brand_name = brand.strip()
+        normalized_category_name = category.strip()
         if not normalized_brand_name:
             raise ValueError("brand name is required")
         if not normalized_category_name:
