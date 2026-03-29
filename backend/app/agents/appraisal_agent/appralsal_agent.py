@@ -8,8 +8,9 @@ from .base_info_extractor import BaseInfoExtractor
 class AppraisalAgent:
     """画像査定フローを実行し、進捗状態を管理するエージェント。"""
 
-    def __init__(self, find_similar_items, state_manager):
+    def __init__(self, find_similar_items, list_categories, state_manager):
         self.find_similar_items = find_similar_items
+        self.list_categories = list_categories
         self.state_manager = state_manager
         self.gemini_client = create_gemini_client()
         self.base_info_extractor = BaseInfoExtractor(self.gemini_client)
@@ -36,6 +37,7 @@ class AppraisalAgent:
         base_info_result = None
         similar_items = None
         should_return = False
+
         if existing_state is not None:
             status = existing_state.get("status")
 
@@ -109,7 +111,8 @@ class AppraisalAgent:
 
         # 画像からブランド・カテゴリを抽出（必要な場合のみ）
         if resume_from != "appraiser":
-            base_info_result = self.base_info_extractor.run(image_bytes)
+            categories = self.list_categories()
+            base_info_result = self.base_info_extractor.run(image_bytes, categories)
 
             if base_info_result["retake_required"]:
                 result = {

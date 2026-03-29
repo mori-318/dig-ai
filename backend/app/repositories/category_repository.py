@@ -61,3 +61,15 @@ class CategoryRepository:
             cursor.execute(sql, (like_query, limit))
             results = list(cursor.fetchall())
         return results
+
+    def list_categories(self) -> list[dict]:
+        """すべてのカテゴリを取得する。"""
+        sql = """
+        SELECT id, name, created_at
+        FROM categories
+        ORDER BY name ASC
+        """
+        with self.mysql_client.cursor() as cursor:
+            cursor.execute(sql)
+            results = list(cursor.fetchall())
+        return results
