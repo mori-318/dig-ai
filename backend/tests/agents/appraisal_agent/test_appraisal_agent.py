@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -12,11 +12,16 @@ def state_manager():
     return manager
 
 
-def _build_agent(state_manager, find_similar_items):
-    agent = AppraisalAgent(
-        find_similar_items=find_similar_items,
-        state_manager=state_manager,
-    )
+def _build_agent(state_manager, find_similar_items, list_categories):
+    with patch(
+        "app.agents.appraisal_agent.appralsal_agent.create_gemini_client",
+        return_value=MagicMock(),
+    ):
+        agent = AppraisalAgent(
+            find_similar_items=find_similar_items,
+            list_categories=list_categories,
+            state_manager=state_manager,
+        )
     agent.base_info_extractor.run = MagicMock()
     agent.appraiser.run = MagicMock()
     return agent
@@ -27,7 +32,8 @@ def test_run_done_flow(state_manager):
     find_similar_items = MagicMock(
         return_value=[{"features_text": "f", "appraisal_text": "a", "price": 1000}]
     )
-    agent = _build_agent(state_manager, find_similar_items)
+    list_categories = MagicMock(return_value=["スウェットシャツ", "ジーンズ"])
+    agent = _build_agent(state_manager, find_similar_items, list_categories)
     agent.base_info_extractor.run.return_value = {
         "brand": "Brand A",
         "category": "Category X",
@@ -46,6 +52,10 @@ def test_run_done_flow(state_manager):
     assert result["result"]["category"] == "Category X"
     assert result["result"]["appraisal_price"] == 1000
     assert result["result"]["appraisal_reason"] == "理由"
+    agent.base_info_extractor.run.assert_called_once_with(
+        b"image",
+        ["スウェットシャツ", "ジーンズ"],
+    )
     state_manager.set.assert_called()
     state_manager.delete.assert_called_with("id-1")
 
@@ -53,7 +63,8 @@ def test_run_done_flow(state_manager):
 def test_run_retake_required_at_base_info(state_manager):
     """base_infoで再撮影が必要な場合を検証する。"""
     find_similar_items = MagicMock()
-    agent = _build_agent(state_manager, find_similar_items)
+    list_categories = MagicMock(return_value=["スウェットシャツ"])
+    agent = _build_agent(state_manager, find_similar_items, list_categories)
     agent.base_info_extractor.run.return_value = {
         "brand": "",
         "category": "Category X",
@@ -73,7 +84,8 @@ def test_run_retake_required_at_base_info(state_manager):
 def test_run_done_when_similar_items_empty(state_manager):
     """類似商品が空の場合の査定終了を検証する。"""
     find_similar_items = MagicMock(return_value=[])
-    agent = _build_agent(state_manager, find_similar_items)
+    list_categories = MagicMock(return_value=["ジーンズ"])
+    agent = _build_agent(state_manager, find_similar_items, list_categories)
     agent.base_info_extractor.run.return_value = {
         "brand": "Brand A",
         "category": "Category X",
