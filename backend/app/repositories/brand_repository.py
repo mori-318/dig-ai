@@ -52,11 +52,12 @@ class BrandRepository:
         sql = """
         SELECT id, name
         FROM brands
-        WHERE name LIKE CONCAT('%', %s, '%')
+        WHERE name LIKE %s
         ORDER BY name ASC
         LIMIT %s
         """
+        like_query = f"%{q}%"
         with self.mysql_client.cursor() as cursor:
-            cursor.execute(sql, (q, limit))
+            cursor.execute(sql, (like_query, limit))
             results = list(cursor.fetchall())
         return results
