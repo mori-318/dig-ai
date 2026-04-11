@@ -29,14 +29,14 @@ function AdminPage() {
     shouldShow: shouldShowBrandMenu,
     open: openBrandMenu,
     close: closeBrandMenu,
-  } = useSuggestions(formData.brand, "brand", 10)
+  } = useSuggestions(formData.brand, "brands", 10)
 
   const {
     suggestions: categorySuggestions,
     shouldShow: shouldShowCategoryMenu,
     open: openCategoryMenu,
     close: closeCategoryMenu,
-  } = useSuggestions(formData.category, "category", 10)
+  } = useSuggestions(formData.category, "categories", 10)
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()

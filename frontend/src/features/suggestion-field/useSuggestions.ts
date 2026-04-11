@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 
-export type SuggestionType = "brand" | "category"
+export type SuggestionType = "brands" | "categories"
 
 export type SuggestionItem = {
   id: number
@@ -44,20 +44,19 @@ export function useSuggestions(
       try {
         const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000"
         const params = new URLSearchParams({ q: queryTrimmed, limit: String(limit) })
-        const res = await fetch(`${baseUrl}/admin/items/${type}s/suggest?${params.toString()}`, {
-          signal: controller.signal,
-        })
+        const path = `/admin/items/${type}/suggest`
+        const res = await fetch(`${baseUrl}${path}?${params.toString()}`, { signal: controller.signal })
         if (!res.ok) {
           setSuggestions([])
           return
         }
 
         const data = (await res.json()) as SuggestBrandResponse | SuggestCategoryResponse
-        if (type === "brand" && "brands" in data) {
+        if (type === "brands" && "brands" in data) {
           setSuggestions(data.brands ?? [])
           return
         }
-        if (type === "category" && "categories" in data) {
+        if (type === "categories" && "categories" in data) {
           setSuggestions(data.categories ?? [])
           return
         }
