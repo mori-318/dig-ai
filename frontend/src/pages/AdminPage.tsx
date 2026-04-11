@@ -24,6 +24,9 @@ const initialFormData: ItemInfo = {
 
 function AdminPage() {
   const [formData, setFormData] = useState<ItemInfo>(initialFormData)
+  const [submitting, setSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
   const {
     suggestions: brandSuggestions,
     shouldShow: shouldShowBrandMenu,
@@ -38,8 +41,48 @@ function AdminPage() {
     close: closeCategoryMenu,
   } = useSuggestions(formData.category, "categories", 10)
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    setSubmitError(null)
+    setSubmitSuccess(null)
+
+    const trimmedPrice = formData.price.trim()
+    const parsedPrice = trimmedPrice === "" ? null : Number(trimmedPrice)
+    if (trimmedPrice !== "" && !Number.isFinite(parsedPrice)) {
+      setSubmitError("Priceは数値で入力してください")
+      return
+    }
+
+    try {
+      setSubmitting(true)
+      const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000"
+      const res = await fetch(`${baseUrl}/admin/items/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          brand: formData.brand.trim(),
+          category: formData.category.trim(),
+          name: formData.name.trim(),
+          features_text: formData.featuresText.trim(),
+          appraisal_text: formData.appraisalText.trim(),
+          price: parsedPrice,
+        }),
+      })
+
+      if (!res.ok) {
+        const errorBody = (await res.json().catch(() => null)) as { detail?: string } | null
+        setSubmitError(errorBody?.detail ?? `送信に失敗しました (${res.status})`)
+        return
+      }
+
+      setSubmitSuccess("登録しました")
+      setFormData(initialFormData)
+    } catch {
+      setSubmitError("ネットワークエラーが発生しました")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -117,11 +160,15 @@ function AdminPage() {
         <div className="mt-7 flex justify-end">
           <button
             type="submit"
-            className="rounded-md bg-slate-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+            disabled={submitting}
+            className="rounded-md bg-slate-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Submit
+            {submitting ? "Submitting..." : "Submit"}
           </button>
         </div>
+
+        {submitError && <p className="mt-4 text-sm text-red-600">{submitError}</p>}
+        {submitSuccess && <p className="mt-4 text-sm text-green-600">{submitSuccess}</p>}
       </form>
     </div>
   )
