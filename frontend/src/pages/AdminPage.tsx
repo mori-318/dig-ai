@@ -58,6 +58,7 @@ function AdminPage() {
             label="Brand"
             value={formData.brand}
             placeholder="例: Levi's"
+            required
             suggestions={brandSuggestions}
             shouldShow={shouldShowBrandMenu}
             onOpen={openBrandMenu}
@@ -69,6 +70,7 @@ function AdminPage() {
             label="Category"
             value={formData.category}
             placeholder="例: denim jacket"
+            required
             suggestions={categorySuggestions}
             shouldShow={shouldShowCategoryMenu}
             onOpen={openCategoryMenu}
@@ -82,6 +84,7 @@ function AdminPage() {
           label="Name"
           value={formData.name}
           placeholder="商品名を入力"
+          required
           onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
         />
 
@@ -89,6 +92,7 @@ function AdminPage() {
           label="Features Text"
           value={formData.featuresText}
           placeholder="商品の特徴を記載"
+          required
           onChange={(value) => setFormData((prev) => ({ ...prev, featuresText: value }))}
         />
 
@@ -96,6 +100,7 @@ function AdminPage() {
           label="Appraisal Text"
           value={formData.appraisalText}
           placeholder="査定コメントを記載"
+          required
           onChange={(value) => setFormData((prev) => ({ ...prev, appraisalText: value }))}
         />
 
@@ -105,6 +110,7 @@ function AdminPage() {
           inputMode="numeric"
           value={formData.price}
           placeholder="0"
+          required
           onChange={(value) => setFormData((prev) => ({ ...prev, price: value }))}
         />
 

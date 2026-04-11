@@ -2,16 +2,26 @@ type TextareaFieldProps = {
   label: string
   value: string
   placeholder?: string
+  required?: boolean
   onChange: (value: string) => void
 }
 
-function TextareaField({ label, value, placeholder, onChange }: TextareaFieldProps) {
+function TextareaField({
+  label,
+  value,
+  placeholder,
+  required = false,
+  onChange,
+}: TextareaFieldProps) {
   return (
     <div className="mt-5 space-y-2">
       <label className="text-sm font-medium text-slate-700">{label}</label>
       <textarea
         className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+        required={required}
         value={value}
+        onInvalid={(e) => e.currentTarget.setCustomValidity("入力してください")}
+        onInput={(e) => e.currentTarget.setCustomValidity("")}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
       />

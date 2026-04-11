@@ -4,6 +4,7 @@ type SuggestionFieldProps = {
   label: string
   value: string
   placeholder: string
+  required?: boolean
   suggestions: SuggestionItem[]
   shouldShow: boolean
   onOpen: () => void
@@ -16,6 +17,7 @@ function SuggestionField({
   label,
   value,
   placeholder,
+  required = false,
   suggestions,
   shouldShow,
   onOpen,
@@ -30,7 +32,10 @@ function SuggestionField({
         <input
           className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
           type="text"
+          required={required}
           value={value}
+          onInvalid={(e) => e.currentTarget.setCustomValidity("入力してください")}
+          onInput={(e) => e.currentTarget.setCustomValidity("")}
           onFocus={onOpen}
           onBlur={() => setTimeout(onClose, 120)}
           onChange={(e) => {
