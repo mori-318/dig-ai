@@ -98,7 +98,7 @@ function AdminPage() {
       >
         <div className="grid gap-5 md:grid-cols-2">
           <SuggestionField
-            label="Brand"
+            label="ブランド"
             value={formData.brand}
             placeholder="例: Levi's"
             required
@@ -110,7 +110,7 @@ function AdminPage() {
             onSelect={(value) => setFormData((prev) => ({ ...prev, brand: value }))}
           />
           <SuggestionField
-            label="Category"
+            label="カテゴリー"
             value={formData.category}
             placeholder="例: denim jacket"
             required
@@ -124,7 +124,7 @@ function AdminPage() {
         </div>
 
         <TextField
-          label="Name"
+          label="アイテム名"
           value={formData.name}
           placeholder="商品名を入力"
           required
@@ -132,7 +132,7 @@ function AdminPage() {
         />
 
         <TextareaField
-          label="Features Text"
+          label="このアイテムの特徴"
           value={formData.featuresText}
           placeholder="商品の特徴を記載"
           required
@@ -140,15 +140,15 @@ function AdminPage() {
         />
 
         <TextareaField
-          label="Appraisal Text"
+          label="査定時のポイント"
           value={formData.appraisalText}
-          placeholder="査定コメントを記載"
+          placeholder="なぜこの価格になるのか、査定のポイントを記載"
           required
           onChange={(value) => setFormData((prev) => ({ ...prev, appraisalText: value }))}
         />
 
         <TextField
-          label="Price"
+          label="価格 (円)"
           type="text"
           inputMode="numeric"
           value={formData.price}
