@@ -1,0 +1,87 @@
+import { useEffect, useMemo, useState } from "react"
+
+export type SuggestionType = "brand" | "category"
+
+export type SuggestionItem = {
+  id: number
+  name: string
+}
+
+type SuggestBrandResponse = {
+  brands: SuggestionItem[]
+}
+
+type SuggestCategoryResponse = {
+  categories: SuggestionItem[]
+}
+
+type UseSuggestionsResult = {
+  suggestions: SuggestionItem[]
+  isOpen: boolean
+  shouldShow: boolean
+  open: () => void
+  close: () => void
+  setIsOpen: (value: boolean) => void
+}
+
+export function useSuggestions(
+  query: string,
+  type: SuggestionType,
+  limit = 20,
+): UseSuggestionsResult {
+  const [suggestions, setSuggestions] = useState<SuggestionItem[]>([])
+  const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    const queryTrimmed = query.trim()
+    if (!queryTrimmed) {
+      setSuggestions([])
+      return
+    }
+
+    const controller = new AbortController()
+    const fetchSuggestions = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000"
+        const params = new URLSearchParams({ q: queryTrimmed, limit: String(limit) })
+        const res = await fetch(`${baseUrl}/admin/items/${type}s/suggest?${params.toString()}`, {
+          signal: controller.signal,
+        })
+        if (!res.ok) {
+          setSuggestions([])
+          return
+        }
+
+        const data = (await res.json()) as SuggestBrandResponse | SuggestCategoryResponse
+        if (type === "brand" && "brands" in data) {
+          setSuggestions(data.brands ?? [])
+          return
+        }
+        if (type === "category" && "categories" in data) {
+          setSuggestions(data.categories ?? [])
+          return
+        }
+        setSuggestions([])
+      } catch {
+        setSuggestions([])
+      }
+    }
+
+    void fetchSuggestions()
+    return () => controller.abort()
+  }, [limit, query, type])
+
+  const shouldShow = useMemo(
+    () => isOpen && query.trim().length > 0 && suggestions.length > 0,
+    [isOpen, query, suggestions.length],
+  )
+
+  return {
+    suggestions,
+    isOpen,
+    shouldShow,
+    open: () => setIsOpen(true),
+    close: () => setIsOpen(false),
+    setIsOpen,
+  }
+}

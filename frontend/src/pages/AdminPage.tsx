@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react"
+import { useState, type FormEvent } from "react"
+import { useSuggestions } from "../features/suggestion-field/useSuggestions"
+import SuggestionField from "../features/suggestion-field/SuggestionField"
 
 type ItemInfo = {
   brand: string
@@ -7,15 +9,6 @@ type ItemInfo = {
   featuresText: string
   appraisalText: string
   price: number | null
-}
-
-type BrandSuggestion = {
-  id: number
-  name: string
-}
-
-type SuggestBrandResponse = {
-  brands: BrandSuggestion[]
 }
 
 const initialFormData: ItemInfo = {
@@ -29,49 +22,23 @@ const initialFormData: ItemInfo = {
 
 function AdminPage() {
   const [formData, setFormData] = useState<ItemInfo>(initialFormData)
-  const [brandSuggestions, setBrandSuggestions] = useState<BrandSuggestion[]>([])
-  const [isBrandMenuOpen, setIsBrandMenuOpen] = useState(false)
+  const {
+    suggestions: brandSuggestions,
+    shouldShow: shouldShowBrandMenu,
+    open: openBrandMenu,
+    close: closeBrandMenu,
+  } = useSuggestions(formData.brand, "brand", 10)
 
-  useEffect(() => {
-    const q = formData.brand.trim()
-    if (!q) {
-      setBrandSuggestions([])
-      return
-    }
-
-    const controller = new AbortController()
-    const fetchSuggestions = async () => {
-      try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000"
-        const params = new URLSearchParams({ q, limit: "10" })
-        const res = await fetch(`${baseUrl}/admin/items/brands/suggest?${params.toString()}`, {
-          signal: controller.signal,
-        })
-
-        if (!res.ok) {
-          setBrandSuggestions([])
-          return
-        }
-
-        const data = (await res.json()) as SuggestBrandResponse
-        setBrandSuggestions(data.brands ?? [])
-      } catch {
-        setBrandSuggestions([])
-      }
-    }
-
-    fetchSuggestions()
-    return () => controller.abort()
-  }, [formData.brand])
+  const {
+    suggestions: categorySuggestions,
+    shouldShow: shouldShowCategoryMenu,
+    open: openCategoryMenu,
+    close: closeCategoryMenu,
+  } = useSuggestions(formData.category, "category", 10)
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
   }
-
-  const shouldShowBrandMenu = useMemo(
-    () => isBrandMenuOpen && formData.brand.trim().length > 0 && brandSuggestions.length > 0,
-    [isBrandMenuOpen, formData.brand, brandSuggestions.length],
-  )
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-10">
@@ -85,53 +52,28 @@ function AdminPage() {
         className="mx-auto w-full max-w-3xl rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
       >
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Brand</label>
-            <div className="relative">
-              <input
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-                type="text"
-                value={formData.brand}
-                onFocus={() => setIsBrandMenuOpen(true)}
-                onBlur={() => setTimeout(() => setIsBrandMenuOpen(false), 120)}
-                onChange={(e) => {
-                  setFormData({ ...formData, brand: e.target.value })
-                  setIsBrandMenuOpen(true)
-                }}
-                placeholder="例: Levi's"
-              />
-
-              {shouldShowBrandMenu && (
-                <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-md border border-slate-200 bg-white py-1 text-sm shadow-lg">
-                  {brandSuggestions.map((brand) => (
-                    <li key={brand.id}>
-                      <button
-                        type="button"
-                        className="block w-full px-3 py-2 text-left text-slate-700 hover:bg-slate-100"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                          setFormData({ ...formData, brand: brand.name })
-                          setIsBrandMenuOpen(false)
-                        }}
-                      >
-                        {brand.name}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Category</label>
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-              type="text"
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              placeholder="例: denim jacket"
-            />
-          </div>
+          <SuggestionField
+            label="Brand"
+            value={formData.brand}
+            placeholder="例: Levi's"
+            suggestions={brandSuggestions}
+            shouldShow={shouldShowBrandMenu}
+            onOpen={openBrandMenu}
+            onClose={closeBrandMenu}
+            onChange={(value) => setFormData((prev) => ({ ...prev, brand: value }))}
+            onSelect={(value) => setFormData((prev) => ({ ...prev, brand: value }))}
+          />
+          <SuggestionField
+            label="Category"
+            value={formData.category}
+            placeholder="例: denim jacket"
+            suggestions={categorySuggestions}
+            shouldShow={shouldShowCategoryMenu}
+            onOpen={openCategoryMenu}
+            onClose={closeCategoryMenu}
+            onChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+            onSelect={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+          />
         </div>
 
         <div className="mt-5 space-y-2">
@@ -140,7 +82,7 @@ function AdminPage() {
             className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
             type="text"
             value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
             placeholder="商品名を入力"
           />
         </div>
@@ -150,7 +92,7 @@ function AdminPage() {
           <textarea
             className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
             value={formData.featuresText}
-            onChange={(e) => setFormData({ ...formData, featuresText: e.target.value })}
+            onChange={(e) => setFormData((prev) => ({ ...prev, featuresText: e.target.value }))}
             placeholder="商品の特徴を記載"
           />
         </div>
@@ -160,7 +102,9 @@ function AdminPage() {
           <textarea
             className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
             value={formData.appraisalText}
-            onChange={(e) => setFormData({ ...formData, appraisalText: e.target.value })}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, appraisalText: e.target.value }))
+            }
             placeholder="査定コメントを記載"
           />
         </div>
@@ -172,10 +116,10 @@ function AdminPage() {
             type="number"
             value={formData.price ?? ""}
             onChange={(e) =>
-              setFormData({
-                ...formData,
+              setFormData((prev) => ({
+                ...prev,
                 price: e.target.value ? parseFloat(e.target.value) : null,
-              })
+              }))
             }
             placeholder="0"
           />
