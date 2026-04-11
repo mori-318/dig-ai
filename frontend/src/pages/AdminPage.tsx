@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from "react"
 import { useSuggestions } from "../features/suggestion-field/useSuggestions"
 import SuggestionField from "../features/suggestion-field/SuggestionField"
+import TextField from "../features/form-field/TextField"
+import TextareaField from "../features/form-field/TextareaField"
 
 type ItemInfo = {
   brand: string
@@ -8,7 +10,7 @@ type ItemInfo = {
   name: string
   featuresText: string
   appraisalText: string
-  price: number | null
+  price: string
 }
 
 const initialFormData: ItemInfo = {
@@ -17,7 +19,7 @@ const initialFormData: ItemInfo = {
   name: "",
   featuresText: "",
   appraisalText: "",
-  price: null,
+  price: "",
 }
 
 function AdminPage() {
@@ -76,54 +78,35 @@ function AdminPage() {
           />
         </div>
 
-        <div className="mt-5 space-y-2">
-          <label className="text-sm font-medium text-slate-700">Name</label>
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-            placeholder="商品名を入力"
-          />
-        </div>
+        <TextField
+          label="Name"
+          value={formData.name}
+          placeholder="商品名を入力"
+          onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
+        />
 
-        <div className="mt-5 space-y-2">
-          <label className="text-sm font-medium text-slate-700">Features Text</label>
-          <textarea
-            className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            value={formData.featuresText}
-            onChange={(e) => setFormData((prev) => ({ ...prev, featuresText: e.target.value }))}
-            placeholder="商品の特徴を記載"
-          />
-        </div>
+        <TextareaField
+          label="Features Text"
+          value={formData.featuresText}
+          placeholder="商品の特徴を記載"
+          onChange={(value) => setFormData((prev) => ({ ...prev, featuresText: value }))}
+        />
 
-        <div className="mt-5 space-y-2">
-          <label className="text-sm font-medium text-slate-700">Appraisal Text</label>
-          <textarea
-            className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            value={formData.appraisalText}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, appraisalText: e.target.value }))
-            }
-            placeholder="査定コメントを記載"
-          />
-        </div>
+        <TextareaField
+          label="Appraisal Text"
+          value={formData.appraisalText}
+          placeholder="査定コメントを記載"
+          onChange={(value) => setFormData((prev) => ({ ...prev, appraisalText: value }))}
+        />
 
-        <div className="mt-5 space-y-2">
-          <label className="text-sm font-medium text-slate-700">Price</label>
-          <input
-            className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-            type="number"
-            value={formData.price ?? ""}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                price: e.target.value ? parseFloat(e.target.value) : null,
-              }))
-            }
-            placeholder="0"
-          />
-        </div>
+        <TextField
+          label="Price"
+          type="text"
+          inputMode="numeric"
+          value={formData.price}
+          placeholder="0"
+          onChange={(value) => setFormData((prev) => ({ ...prev, price: value }))}
+        />
 
         <div className="mt-7 flex justify-end">
           <button
