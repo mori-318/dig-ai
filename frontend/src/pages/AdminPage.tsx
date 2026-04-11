@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react"
+import { useEffect, useMemo, useState, type FormEvent } from "react"
 
 type ItemInfo = {
   brand: string
@@ -9,21 +9,69 @@ type ItemInfo = {
   price: number | null
 }
 
+type BrandSuggestion = {
+  id: number
+  name: string
+}
+
+type SuggestBrandResponse = {
+  brands: BrandSuggestion[]
+}
+
 const initialFormData: ItemInfo = {
-  brand: '',
-  category: '',
-  name: '',
-  featuresText: '',
-  appraisalText: '',
-  price: null
+  brand: "",
+  category: "",
+  name: "",
+  featuresText: "",
+  appraisalText: "",
+  price: null,
 }
 
 function AdminPage() {
   const [formData, setFormData] = useState<ItemInfo>(initialFormData)
+  const [brandSuggestions, setBrandSuggestions] = useState<BrandSuggestion[]>([])
+  const [isBrandMenuOpen, setIsBrandMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const q = formData.brand.trim()
+    if (!q) {
+      setBrandSuggestions([])
+      return
+    }
+
+    const controller = new AbortController()
+    const fetchSuggestions = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000"
+        const params = new URLSearchParams({ q, limit: "10" })
+        const res = await fetch(`${baseUrl}/admin/items/brands/suggest?${params.toString()}`, {
+          signal: controller.signal,
+        })
+
+        if (!res.ok) {
+          setBrandSuggestions([])
+          return
+        }
+
+        const data = (await res.json()) as SuggestBrandResponse
+        setBrandSuggestions(data.brands ?? [])
+      } catch {
+        setBrandSuggestions([])
+      }
+    }
+
+    fetchSuggestions()
+    return () => controller.abort()
+  }, [formData.brand])
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
   }
+
+  const shouldShowBrandMenu = useMemo(
+    () => isBrandMenuOpen && formData.brand.trim().length > 0 && brandSuggestions.length > 0,
+    [isBrandMenuOpen, formData.brand, brandSuggestions.length],
+  )
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-10">
@@ -39,13 +87,40 @@ function AdminPage() {
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Brand</label>
-            <input
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
-              type="text"
-              value={formData.brand}
-              onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-              placeholder="例: Levi's"
-            />
+            <div className="relative">
+              <input
+                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
+                type="text"
+                value={formData.brand}
+                onFocus={() => setIsBrandMenuOpen(true)}
+                onBlur={() => setTimeout(() => setIsBrandMenuOpen(false), 120)}
+                onChange={(e) => {
+                  setFormData({ ...formData, brand: e.target.value })
+                  setIsBrandMenuOpen(true)
+                }}
+                placeholder="例: Levi's"
+              />
+
+              {shouldShowBrandMenu && (
+                <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-md border border-slate-200 bg-white py-1 text-sm shadow-lg">
+                  {brandSuggestions.map((brand) => (
+                    <li key={brand.id}>
+                      <button
+                        type="button"
+                        className="block w-full px-3 py-2 text-left text-slate-700 hover:bg-slate-100"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => {
+                          setFormData({ ...formData, brand: brand.name })
+                          setIsBrandMenuOpen(false)
+                        }}
+                      >
+                        {brand.name}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700">Category</label>
@@ -99,7 +174,7 @@ function AdminPage() {
             onChange={(e) =>
               setFormData({
                 ...formData,
-                price: e.target.value ? parseFloat(e.target.value) : null
+                price: e.target.value ? parseFloat(e.target.value) : null,
               })
             }
             placeholder="0"
