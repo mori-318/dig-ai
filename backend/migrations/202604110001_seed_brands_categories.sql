@@ -1,6 +1,8 @@
 -- Test seed for local Docker initialization
 -- This file is executed only on first MySQL container initialization
 
+SET NAMES utf8mb4;
+
 INSERT INTO brands (name) VALUES
   ('Levi''s'),
   ('Nike'),

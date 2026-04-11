@@ -17,5 +17,7 @@ def create_mysql_client(database: str | None = None):
         user=mysql_user,
         password=mysql_password,
         database=mysql_database,
+        charset="utf8mb4",
+        use_unicode=True,
         cursorclass=pymysql.cursors.DictCursor,
     )
