@@ -1,3 +1,5 @@
+"""FastAPIアプリケーションの起動とライフサイクル管理。"""
+
 from contextlib import asynccontextmanager
 from logging import Formatter, StreamHandler, getLogger
 

@@ -1,3 +1,5 @@
+"""画像からブランド・カテゴリと再撮影要否を抽出する処理。"""
+
 import json
 
 from google import genai
@@ -44,17 +46,27 @@ PROMPT_TEMPLATE = """
 
 
 class BaseInfoExtractor:
+    """Run a Gemini prompt to extract basic product information from images."""
+
     def __init__(
         self,
         gemini_client: genai.Client,
         model="gemini-2.5-flash-lite",
         prompt_template: str = PROMPT_TEMPLATE,
     ):
+        """基本情報抽出に必要なGeminiクライアント設定を初期化する。
+
+        Args:
+            gemini_client (genai.Client): Gemini APIクライアント。
+            model (str): 利用するGeminiモデル名。
+            prompt_template (str): 基本情報抽出用プロンプトテンプレート。
+        """
         self.gemini_client = gemini_client
         self.model = model
         self.prompt_template = prompt_template
 
     def run(self, image_bytes: bytes, categories: list[str]) -> dict:
+        """Extract brand/category and retake requirement from the given image."""
         prompt = self._construct_prompt(categories)
         try:
             response = self.gemini_client.models.generate_content(
@@ -74,6 +86,8 @@ class BaseInfoExtractor:
             raise ExternalAIUnavailableError("Base info extraction request failed") from exc
 
         try:
+            if response.text is None:
+                raise ExternalAIResponseError("Base info extraction returned empty response")
             return json.loads(response.text)
         except Exception as exc:
             raise ExternalAIResponseError("Base info extraction returned invalid JSON") from exc

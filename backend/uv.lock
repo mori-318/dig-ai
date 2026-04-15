@@ -53,6 +53,7 @@ dev = [
     { name = "mypy" },
     { name = "pytest" },
     { name = "ruff" },
+    { name = "types-pymysql" },
 ]
 
 [package.metadata]
@@ -72,6 +73,7 @@ dev = [
     { name = "mypy", specifier = ">=1.19.1" },
     { name = "pytest", specifier = ">=9.0.2" },
     { name = "ruff", specifier = ">=0.15.7" },
+    { name = "types-pymysql", specifier = ">=1.1.0.20251103" },
 ]
 
 [[package]]
@@ -781,6 +783,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/47/c6/ee486fd809e357697ee8a44d3d69222b344920433d3b6666ccd9b374630c/tenacity-9.1.4.tar.gz", hash = "sha256:adb31d4c263f2bd041081ab33b498309a57c77f9acf2db65aadf0898179cf93a", size = 49413, upload-time = "2026-02-07T10:45:33.841Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d7/c1/eb8f9debc45d3b7918a32ab756658a0904732f75e555402972246b0b8e71/tenacity-9.1.4-py3-none-any.whl", hash = "sha256:6095a360c919085f28c6527de529e76a06ad89b23659fa881ae0649b867a9d55", size = 28926, upload-time = "2026-02-07T10:45:32.24Z" },
+]
+
+[[package]]
+name = "types-pymysql"
+version = "1.1.0.20260408"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b3/04/c3570f05ebab083f28698c829dddf754ffefc30aae4e29915610848e44db/types_pymysql-1.1.0.20260408.tar.gz", hash = "sha256:b784dc37908479e3767e2d794ab507b3674adb1c686ca3d13fc9e2960dbcb9ec", size = 22344, upload-time = "2026-04-08T04:27:47.651Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/70/b3/15dee33878709705a4cc83bcc1bb30e00e95bbe038b472cb1207a15b50a1/types_pymysql-1.1.0.20260408-py3-none-any.whl", hash = "sha256:da630647eaaa7a926a3907794f4067f269cd245b2c202c74aa3c6a3bd660a9db", size = 23071, upload-time = "2026-04-08T04:27:46.735Z" },
 ]
 
 [[package]]

@@ -1,1 +1,1 @@
-"""Infrastructure package."""
+"""インフラ層のパッケージ。"""

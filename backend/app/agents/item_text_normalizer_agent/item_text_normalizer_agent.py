@@ -38,6 +38,11 @@ class ItemTextNormalizerAgent:
     """管理者の追加した商品情報を、DBに格納する前に清書するエージェント。"""
 
     def __init__(self, model="gemini-2.5-flash-lite"):
+        """テキスト清書エージェントの実行設定を初期化する。
+
+        Args:
+            model (str): 利用するGeminiモデル名。
+        """
         self.gemini_client = create_gemini_client()
         self.model = model
 

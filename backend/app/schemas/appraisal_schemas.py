@@ -1,3 +1,5 @@
+"""査定APIのレスポンスで利用するスキーマ定義。"""
+
 from typing import Literal, Optional
 
 from pydantic import BaseModel, model_validator
@@ -40,6 +42,14 @@ class AppraisalResponse(BaseModel):
 
     @model_validator(mode="after")
     def validate_status(self) -> "AppraisalResponse":
+        """ステータスに応じた必須・禁止フィールドの整合性を検証する。
+
+        Returns:
+            AppraisalResponse: 検証済みの自身のインスタンス。
+
+        Raises:
+            ValueError: ステータスに対して不正なフィールド組み合わせの場合。
+        """
         if self.status == "done":
             if self.result is None:
                 raise ValueError("result is required when status is done")

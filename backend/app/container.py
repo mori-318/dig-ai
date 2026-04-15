@@ -1,3 +1,5 @@
+"""サービスとエージェントの依存関係を組み立てるヘルパー。"""
+
 from functools import partial
 
 from .agents import AppraisalAgent

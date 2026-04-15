@@ -1,3 +1,5 @@
+"""ブランドとカテゴリを条件に類似商品を検索するツール。"""
+
 from ...schemas.internal_types import SimilarItem
 from ...repositories.brand_repository import BrandRepository
 from ...repositories.category_repository import CategoryRepository

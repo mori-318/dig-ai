@@ -1,4 +1,4 @@
-"""Appraisal agent implementation."""
+"""査定エージェントの本体実装。"""
 
 from ...agents.client import create_gemini_client
 from ...errors import ExternalAIResponseError
@@ -10,6 +10,13 @@ class AppraisalAgent:
     """画像査定フローを実行し、進捗状態を管理するエージェント。"""
 
     def __init__(self, find_similar_items, list_categories, state_manager):
+        """査定に必要な依存オブジェクトを初期化する。
+
+        Args:
+            find_similar_items: 類似商品を検索する関数。
+            list_categories: 利用可能なカテゴリ一覧を返す関数。
+            state_manager: 査定状態を保存・取得するマネージャ。
+        """
         self.find_similar_items = find_similar_items
         self.list_categories = list_categories
         self.state_manager = state_manager
@@ -141,6 +148,7 @@ class AppraisalAgent:
                 return result
 
         # 再撮影が必要な場合を除いて、類似商品情報を取得
+        assert base_info_result is not None
         if similar_items is None:
             similar_items = self.find_similar_items(
                 brand=base_info_result["brand"],

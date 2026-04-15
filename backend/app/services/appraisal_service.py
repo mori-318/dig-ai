@@ -1,3 +1,5 @@
+"""査定フローを実行するサービス層。"""
+
 import uuid
 from typing import cast
 
@@ -9,10 +11,22 @@ from ..schemas.appraisal_schemas import AppraisalResponse, AppraisalResult
 
 
 class AppraisalService:
+    """査定実行フローをアプリケーション層で制御するサービス。"""
+
     def __init__(self, appraisal_agent: AppraisalAgent) -> None:
+        """査定サービスの依存オブジェクトを初期化する。
+
+        Args:
+            appraisal_agent (AppraisalAgent): 査定処理を実行するエージェント。
+        """
         self.appraisal_agent = appraisal_agent
 
     def _new_appraisal_id(self) -> str:
+        """新しい査定IDを生成する。
+
+        Returns:
+            str: UUID形式の査定ID。
+        """
         return str(uuid.uuid4())
 
     def _build_response(
@@ -20,6 +34,15 @@ class AppraisalService:
         appraisal_id: str,
         appraisal_result: ServiceAppraisalResult,
     ) -> AppraisalResponse:
+        """エージェント結果をAPIレスポンスモデルに変換する。
+
+        Args:
+            appraisal_id (str): 査定ID。
+            appraisal_result (ServiceAppraisalResult): エージェントが返した査定結果。
+
+        Returns:
+            AppraisalResponse: APIレスポンスとして返す査定結果。
+        """
         if appraisal_result["status"] == "done":
             return AppraisalResponse(
                 status=appraisal_result["status"],

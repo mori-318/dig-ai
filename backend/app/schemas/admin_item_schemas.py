@@ -1,3 +1,5 @@
+"""管理者向けアイテムAPIで利用するスキーマ定義。"""
+
 from pydantic import BaseModel, Field
 
 

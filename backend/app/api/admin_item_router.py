@@ -1,3 +1,5 @@
+"""管理者向けアイテム管理APIのルーター。"""
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pymysql import MySQLError
 from pymysql.err import IntegrityError
@@ -19,6 +21,14 @@ router = APIRouter(prefix="/admin/items", tags=["admin_items"])
 
 
 def _raise_db_unavailable(exc: Exception) -> None:
+    """DB接続系エラーをHTTP 503に変換して送出する。
+
+    Args:
+        exc (Exception): 元となった例外。
+
+    Raises:
+        HTTPException: 一時的なDB利用不可を表すHTTP 503エラー。
+    """
     raise HTTPException(
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         detail="Database service is temporarily unavailable",
@@ -37,7 +47,15 @@ async def create_item(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except MySQLError as e:
         _raise_db_unavailable(e)
-    return AdminItemResponse(**item)
+    return AdminItemResponse(
+        id=item["id"],
+        brand_id=item["brand_id"],
+        category_id=item["category_id"],
+        name=item["name"],
+        features_text=item["features_text"],
+        appraisal_text=item["appraisal_text"],
+        price=item["price"],
+    )
 
 
 @router.get("/brands/suggest", response_model=SuggestBrandResponse)

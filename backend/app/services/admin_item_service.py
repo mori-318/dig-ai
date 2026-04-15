@@ -1,10 +1,20 @@
+"""管理者向けアイテム操作のサービス層。"""
+
 from ..schemas.admin_item_schemas import Brand, Category
+from ..schemas.internal_types import ItemRecord
 
 
 class AdminItemService:
     """管理者向けのアイテム関連のサービスクラス。"""
 
     def __init__(self, item_repository, brand_repository, category_repository):
+        """管理者向けアイテムサービスの依存オブジェクトを初期化する。
+
+        Args:
+            item_repository: アイテム情報を扱うリポジトリ。
+            brand_repository: ブランド情報を扱うリポジトリ。
+            category_repository: カテゴリ情報を扱うリポジトリ。
+        """
         self.item_repository = item_repository
         self.brand_repository = brand_repository
         self.category_repository = category_repository
@@ -18,7 +28,7 @@ class AdminItemService:
         features_text: str,
         appraisal_text: str,
         price: int | None = None,
-    ) -> dict:
+    ) -> ItemRecord:
         """アイテムを新規作成するメソッド。
         Args:
             brand (str): ブランド名。
@@ -37,17 +47,17 @@ class AdminItemService:
         if not normalized_category_name:
             raise ValueError("category name is required")
 
-        brand = self.brand_repository.find_by_name(normalized_brand_name)
-        if brand is None:
-            brand = self.brand_repository.create_brand(normalized_brand_name)
+        brand_record = self.brand_repository.find_by_name(normalized_brand_name)
+        if brand_record is None:
+            brand_record = self.brand_repository.create_brand(normalized_brand_name)
 
-        category = self.category_repository.find_by_name(normalized_category_name)
-        if category is None:
-            category = self.category_repository.create_category(normalized_category_name)
+        category_record = self.category_repository.find_by_name(normalized_category_name)
+        if category_record is None:
+            category_record = self.category_repository.create_category(normalized_category_name)
 
         return self.item_repository.create_item(
-            brand_id=brand["id"],
-            category_id=category["id"],
+            brand_id=brand_record["id"],
+            category_id=category_record["id"],
             name=name,
             features_text=features_text,
             appraisal_text=appraisal_text,

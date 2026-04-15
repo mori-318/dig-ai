@@ -1,3 +1,5 @@
+"""アイテム情報へのデータアクセスを提供するリポジトリ。"""
+
 from typing import cast
 
 from ..schemas.internal_types import ItemRecord
@@ -7,6 +9,11 @@ class ItemRepository:
     """アイテム情報を管理するリポジトリクラス。"""
 
     def __init__(self, mysql_client):
+        """アイテムリポジトリの依存オブジェクトを初期化する。
+
+        Args:
+            mysql_client: MySQL接続クライアント。
+        """
         self.mysql_client = mysql_client
 
     def find_items(
@@ -80,4 +87,7 @@ class ItemRepository:
         except Exception:
             self.mysql_client.rollback()
             raise
-        return self.find_by_id(item_id)
+        created = self.find_by_id(item_id)
+        if created is None:
+            raise RuntimeError("created item not found")
+        return created

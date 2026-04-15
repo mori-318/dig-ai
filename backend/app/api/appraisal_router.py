@@ -1,3 +1,5 @@
+"""査定開始・再撮影APIのルーター。"""
+
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from ..api.depends import get_appraisal_service
@@ -13,6 +15,7 @@ async def start_appraisal(
     item_image: UploadFile = File(...),
     appraisal_service: AppraisalService = Depends(get_appraisal_service),
 ) -> AppraisalResponse:
+    """Start a new appraisal for the uploaded image."""
     try:
         return appraisal_service.run_appraisal(item_image)
     except ExternalAIError as exc:
@@ -28,6 +31,7 @@ async def retake_appraisal(
     item_image: UploadFile = File(...),
     appraisal_service: AppraisalService = Depends(get_appraisal_service),
 ) -> AppraisalResponse:
+    """Re-run appraisal with a new image for an existing appraisal ID."""
     try:
         return appraisal_service.run_appraisal(item_image, appraisal_id=appraisal_id)
     except ExternalAIError as exc:

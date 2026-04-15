@@ -1,3 +1,5 @@
+"""AIモデルクライアントを生成するヘルパー。"""
+
 import os
 from google import genai
 

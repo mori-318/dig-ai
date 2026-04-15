@@ -1,3 +1,5 @@
+"""外部AI連携で利用する独自例外定義。"""
+
 class ExternalAIError(Exception):
     """外部AIサービス起因の例外。"""
 

@@ -1,3 +1,5 @@
+"""FastAPIルーターで共有する依存関係プロバイダー。"""
+
 from fastapi import Request
 
 from ..container import build_admin_item_service

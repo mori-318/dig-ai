@@ -1,4 +1,4 @@
-"""Database infrastructure package."""
+"""データベース接続基盤のパッケージ。"""
 
 from .mysql_client import create_mysql_client
 from .redis_client import create_redis_client

@@ -1,3 +1,5 @@
+"""画像と類似商品情報から査定理由と価格を生成する処理。"""
+
 import json
 
 from google import genai
@@ -28,17 +30,27 @@ PROMPT_TEMPLATE = """
 
 
 class Appraiser:
+    """Run the appraisal step by prompting Gemini with similar item context."""
+
     def __init__(
         self,
         gemini_client: genai.Client,
         model="gemini-2.5-flash-lite",
         prompt_template: str = PROMPT_TEMPLATE,
     ):
+        """査定実行に必要なGeminiクライアント設定を初期化する。
+
+        Args:
+            gemini_client (genai.Client): Gemini APIクライアント。
+            model (str): 利用するGeminiモデル名。
+            prompt_template (str): 査定用プロンプトテンプレート。
+        """
         self.gemini_client = gemini_client
         self.model = model
         self.prompt_template = prompt_template
 
     def run(self, similar_item_descriptions: list, image_bytes: bytes) -> dict:
+        """Estimate price and reason from an image and similar item descriptions."""
         prompt = self._construct_prompt(similar_item_descriptions)
         try:
             response = self.gemini_client.models.generate_content(
@@ -58,6 +70,8 @@ class Appraiser:
             raise ExternalAIUnavailableError("Appraiser request failed") from exc
 
         try:
+            if response.text is None:
+                raise ExternalAIResponseError("Appraiser returned empty response")
             return json.loads(response.text)
         except Exception as exc:
             raise ExternalAIResponseError("Appraiser returned invalid JSON") from exc

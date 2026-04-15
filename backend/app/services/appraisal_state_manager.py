@@ -1,4 +1,7 @@
+"""査定進捗をRedisで管理するステートマネージャ。"""
+
 import json
+from typing import Any, cast
 
 from redis import Redis
 
@@ -12,6 +15,12 @@ class AppraisalStateManager:
     """
 
     def __init__(self, redis_client: Redis, ttl_seconds: int = 3600) -> None:
+        """状態管理に使うRedisクライアントとTTLを設定する。
+
+        Args:
+            redis_client (Redis): 状態保存先のRedisクライアント。
+            ttl_seconds (int): 状態を保持する秒数。
+        """
         self.redis_client = redis_client
         self.ttl_seconds = ttl_seconds
 
@@ -29,17 +38,19 @@ class AppraisalStateManager:
 
     def get(self, appraisal_id: str) -> dict | None:
         """査定の状態をRedisから取得する。"""
-        raw = self.redis_client.get(self._key(appraisal_id))
+        raw = cast(str | bytes | bytearray | None, self.redis_client.get(self._key(appraisal_id)))
         if raw is None:
             return None
         if isinstance(raw, (bytes, bytearray)):
             raw = raw.decode("utf-8")
-        return json.loads(raw)
+        return cast(dict[str, Any], json.loads(raw))
 
     def delete(self, appraisal_id: str) -> bool:
         """査定の状態をRedisから削除する。"""
-        return self.redis_client.delete(self._key(appraisal_id)) > 0
+        deleted = cast(int, self.redis_client.delete(self._key(appraisal_id)))
+        return deleted > 0
 
     def exists(self, appraisal_id: str) -> bool:
         """査定の状態がRedisに存在するか確認する。"""
-        return self.redis_client.exists(self._key(appraisal_id)) > 0
+        exists = cast(int, self.redis_client.exists(self._key(appraisal_id)))
+        return exists > 0
