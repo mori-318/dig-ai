@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
+import { apiBaseUrl } from "../../services/apiBaseUrl"
 
 export type SuggestionType = "brands" | "categories"
 
@@ -42,10 +43,9 @@ export function useSuggestions(
     const controller = new AbortController()
     const fetchSuggestions = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000"
         const params = new URLSearchParams({ q: queryTrimmed, limit: String(limit) })
         const path = `/admin/items/${type}/suggest`
-        const res = await fetch(`${baseUrl}${path}?${params.toString()}`, { signal: controller.signal })
+        const res = await fetch(`${apiBaseUrl}${path}?${params.toString()}`, { signal: controller.signal })
         if (!res.ok) {
           setSuggestions([])
           return

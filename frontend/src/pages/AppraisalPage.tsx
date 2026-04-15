@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { apiBaseUrl } from '../services/apiBaseUrl'
 
 type AppraisalResponse = {
   status: 'done' | 'retake_required'
@@ -42,8 +43,7 @@ function AppraisalPage() {
       const form = new FormData()
       form.append('item_image', targetFile)
 
-      const baseUrl = import.meta.env.VITE_API_BASE_URL ?? 'http://127.0.0.1:8000'
-      const res = await fetch(`${baseUrl}/appraisal/`, {
+      const res = await fetch(`${apiBaseUrl}/appraisal/`, {
         method: 'POST',
         body: form,
       })

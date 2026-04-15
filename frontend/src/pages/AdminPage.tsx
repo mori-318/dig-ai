@@ -3,6 +3,7 @@ import { useSuggestions } from "../features/suggestion-field/useSuggestions"
 import SuggestionField from "../features/suggestion-field/SuggestionField"
 import TextField from "../features/form-field/TextField"
 import TextareaField from "../features/form-field/TextareaField"
+import { apiBaseUrl } from "../services/apiBaseUrl"
 
 type ItemInfo = {
   brand: string
@@ -56,8 +57,7 @@ function AdminPage() {
 
     try {
       setSubmitting(true)
-      const baseUrl = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000"
-      const res = await fetch(`${baseUrl}/admin/items/`, {
+      const res = await fetch(`${apiBaseUrl}/admin/items/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
