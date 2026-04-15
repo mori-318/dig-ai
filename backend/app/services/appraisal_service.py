@@ -13,19 +13,7 @@ class AppraisalService:
     def _new_appraisal_id(self) -> str:
         return str(uuid.uuid4())
 
-    def start_appraisal(self, image: UploadFile) -> AppraisalResponse:
-        """画像を受け取って、査定を行う
-
-        Args:
-            image (UploadFile): 査定対象の画像
-        Returns:
-            AppraisalResponse: 査定結果
-        """
-        appraisal_id = self._new_appraisal_id()
-
-        image_bytes = image.file.read()
-        appraisal_result = self.appraisal_agent.run(appraisal_id, image_bytes)
-
+    def _build_response(self, appraisal_id: str, appraisal_result: dict) -> AppraisalResponse:
         if appraisal_result["status"] == "done":
             return AppraisalResponse(
                 status=appraisal_result["status"],
@@ -37,10 +25,21 @@ class AppraisalService:
                     appraisal_reason=appraisal_result["result"]["appraisal_reason"],
                 ),
             )
-        else:
-            return AppraisalResponse(
-                status=appraisal_result["status"],
-                appraisal_id=appraisal_id,
-                retake_message=appraisal_result["retake_message"],
-                retake_required_by=appraisal_result["retake_required_by"],
-            )
+        return AppraisalResponse(
+            status=appraisal_result["status"],
+            appraisal_id=appraisal_id,
+            retake_message=appraisal_result["retake_message"],
+            retake_required_by=appraisal_result["retake_required_by"],
+        )
+
+    def run_appraisal(self, image: UploadFile, appraisal_id: str | None = None) -> AppraisalResponse:
+        """画像を受け取って査定を実行する。
+
+        appraisal_id が未指定なら新規査定としてIDを発行し、
+        指定されていれば既存査定IDで再実行する。
+        """
+        if appraisal_id is None:
+            appraisal_id = self._new_appraisal_id()
+        image_bytes = image.file.read()
+        appraisal_result = self.appraisal_agent.run(appraisal_id, image_bytes)
+        return self._build_response(appraisal_id, appraisal_result)

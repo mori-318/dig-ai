@@ -9,7 +9,7 @@
   - `backend/app/agents/appraisal_agent/appraisal_agent.py`
   - `backend/app/agents/__init__.py`
 
-- [ ] 2. API 層の責務分離
+- [x] 2. API 層の責務分離
 
 - ルーター内で `AppraisalService` を毎回直接生成しており DI が不統一（admin 側は `Depends`）。
 - `retake` API がダミー返却のままで、実装境界が曖昧。

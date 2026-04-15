@@ -2,6 +2,7 @@ from fastapi import Request
 
 from ..container import build_admin_item_service
 from ..services.admin_item_service import AdminItemService
+from ..services.appraisal_service import AppraisalService
 
 
 def get_redis_client(request: Request):
@@ -23,6 +24,12 @@ def get_admin_item_service(request: Request) -> AdminItemService:
 def get_appraisal_agent(request: Request):
     """FastAPIのRequestオブジェクトからAppraisalAgentを取得する依存関数。"""
     return request.app.state.appraisal_agent
+
+
+def get_appraisal_service(request: Request) -> AppraisalService:
+    """リクエストごとにAppraisalServiceを生成して返す依存関数。"""
+    appraisal_agent = get_appraisal_agent(request)
+    return AppraisalService(appraisal_agent=appraisal_agent)
 
 
 def get_appraisal_state_manager(request: Request):
