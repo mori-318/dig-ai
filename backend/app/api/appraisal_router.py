@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from ..api.depends import get_appraisal_service
+from ..errors import ExternalAIError
 from ..schemas.appraisal_schemas import AppraisalResponse
 from ..services.appraisal_service import AppraisalService
 
@@ -12,7 +13,13 @@ async def start_appraisal(
     item_image: UploadFile = File(...),
     appraisal_service: AppraisalService = Depends(get_appraisal_service),
 ) -> AppraisalResponse:
-    return appraisal_service.run_appraisal(item_image)
+    try:
+        return appraisal_service.run_appraisal(item_image)
+    except ExternalAIError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Appraisal service is temporarily unavailable",
+        ) from exc
 
 
 @router.post("/{appraisal_id}/retake", response_model=AppraisalResponse)
@@ -21,4 +28,10 @@ async def retake_appraisal(
     item_image: UploadFile = File(...),
     appraisal_service: AppraisalService = Depends(get_appraisal_service),
 ) -> AppraisalResponse:
-    return appraisal_service.run_appraisal(item_image, appraisal_id=appraisal_id)
+    try:
+        return appraisal_service.run_appraisal(item_image, appraisal_id=appraisal_id)
+    except ExternalAIError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Appraisal service is temporarily unavailable",
+        ) from exc

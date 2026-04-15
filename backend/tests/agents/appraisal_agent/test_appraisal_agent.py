@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from app.agents import AppraisalAgent
+from app.errors import ExternalAIResponseError
 
 
 @pytest.fixture
@@ -41,7 +42,7 @@ def test_run_done_flow(state_manager):
         "retake_instructions": "",
     }
     agent.appraiser.run.return_value = {
-        "appraisal_price": "1000",
+        "appraisal_price": 1000,
         "appraisal_reason": "理由",
     }
 
@@ -98,3 +99,24 @@ def test_run_done_when_similar_items_empty(state_manager):
     assert result["status"] == "done"
     assert result["result"]["appraisal_price"] == -1
     assert "査定ができませんでした" in result["result"]["appraisal_reason"]
+
+
+def test_run_raises_when_appraisal_price_is_not_integer(state_manager):
+    find_similar_items = MagicMock(
+        return_value=[{"features_text": "f", "appraisal_text": "a", "price": 1000}]
+    )
+    list_categories = MagicMock(return_value=["スウェットシャツ", "ジーンズ"])
+    agent = _build_agent(state_manager, find_similar_items, list_categories)
+    agent.base_info_extractor.run.return_value = {
+        "brand": "Brand A",
+        "category": "Category X",
+        "retake_required": False,
+        "retake_instructions": "",
+    }
+    agent.appraiser.run.return_value = {
+        "appraisal_price": "1000",
+        "appraisal_reason": "理由",
+    }
+
+    with pytest.raises(ExternalAIResponseError):
+        agent.run("id-4", b"image")

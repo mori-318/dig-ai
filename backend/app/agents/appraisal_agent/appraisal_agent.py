@@ -1,6 +1,7 @@
 """Appraisal agent implementation."""
 
 from ...agents.client import create_gemini_client
+from ...errors import ExternalAIResponseError
 from .appraiser import Appraiser
 from .base_info_extractor import BaseInfoExtractor
 
@@ -177,7 +178,10 @@ class AppraisalAgent:
             image_bytes=image_bytes,
         )
 
-        price = int(appraisal_result.get("appraisal_price", -1))
+        raw_price = appraisal_result.get("appraisal_price")
+        if type(raw_price) is not int:
+            raise ExternalAIResponseError("appraisal_price must be integer")
+        price = raw_price
 
         result = {
             "status": "done",

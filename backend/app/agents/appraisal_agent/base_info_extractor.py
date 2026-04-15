@@ -3,6 +3,8 @@ import json
 from google import genai
 from google.genai import types
 
+from ...errors import ExternalAIResponseError, ExternalAIUnavailableError
+
 PROMPT_TEMPLATE = """
 与えられた画像から、以下の情報を抽出して、出力形式に従ってJSON形式で出力してください。
 出力はJSONオブジェクトのみ。コードフェンスや説明文などの余計な文字は一切付けないでください。
@@ -54,20 +56,27 @@ class BaseInfoExtractor:
 
     def run(self, image_bytes: bytes, categories: list[str]) -> dict:
         prompt = self._construct_prompt(categories)
-        response = self.gemini_client.models.generate_content(
-            model=self.model,
-            contents=[
-                types.Part.from_bytes(
-                    data=image_bytes,
-                    mime_type="image/png",
-                ),
-                prompt,
-            ],
-            config={
-                "response_mime_type": "application/json",
-            },
-        )
-        return json.loads(response.text)
+        try:
+            response = self.gemini_client.models.generate_content(
+                model=self.model,
+                contents=[
+                    types.Part.from_bytes(
+                        data=image_bytes,
+                        mime_type="image/png",
+                    ),
+                    prompt,
+                ],
+                config={
+                    "response_mime_type": "application/json",
+                },
+            )
+        except Exception as exc:
+            raise ExternalAIUnavailableError("Base info extraction request failed") from exc
+
+        try:
+            return json.loads(response.text)
+        except Exception as exc:
+            raise ExternalAIResponseError("Base info extraction returned invalid JSON") from exc
 
     def _construct_prompt(self, categories: list[str]) -> str:
         """カテゴリのリストをプロンプト内のテーブル形式の文字列に変換する。

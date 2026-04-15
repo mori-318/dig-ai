@@ -3,6 +3,8 @@ import json
 from google import genai
 from google.genai import types
 
+from ...errors import ExternalAIResponseError, ExternalAIUnavailableError
+
 PROMPT_TEMPLATE = """
 以下の特徴・観点と価格例を参考にして、与えられた画像の金額を鑑定してください。
 その際、なぜそのような結果になるか、step by stepで考えてその考えも出力してください。
@@ -14,13 +16,13 @@ PROMPT_TEMPLATE = """
 以下のJSON形式で、画像から抽出すべき項目を出力してください。
 {{
     "appraisal_reason": "step by stepで考えた査定の理由。***日本語*",
-    "appraisal_price": "査定結果の金額 例: 1000円",
+    "appraisal_price": 1000,
 }}
 
 ## 出力例
 {{
     "appraisal_reason": "価格例の参照: 「色が新品に近い場合は高め」とある。画像では発色が良く退色が少ないため、この観点は高評価寄り。\n価格例の参照: 「年代が古いほど限定性や歴史的価値で高価になることがある」とある。画像は古いモデルに見え、流通量も少なそうなので加点要素。\n価格例の参照: 「保存状態が良いほど減額が少ない」とある。目立つキズが見当たらず付属品も揃っているため、相場より上振れの可能性が高い。\n以上より、相場の中間価格よりやや高めの査定が妥当と判断した。",
-    "appraisal_price": "1000円"
+    "appraisal_price": 1000
 }}
 """
 
@@ -38,20 +40,27 @@ class Appraiser:
 
     def run(self, similar_item_descriptions: list, image_bytes: bytes) -> dict:
         prompt = self._construct_prompt(similar_item_descriptions)
-        response = self.gemini_client.models.generate_content(
-            model=self.model,
-            contents=[
-                types.Part.from_bytes(
-                    data=image_bytes,
-                    mime_type="image/png",
-                ),
-                prompt,
-            ],
-            config={
-                "response_mime_type": "application/json",
-            },
-        )
-        return json.loads(response.text)
+        try:
+            response = self.gemini_client.models.generate_content(
+                model=self.model,
+                contents=[
+                    types.Part.from_bytes(
+                        data=image_bytes,
+                        mime_type="image/png",
+                    ),
+                    prompt,
+                ],
+                config={
+                    "response_mime_type": "application/json",
+                },
+            )
+        except Exception as exc:
+            raise ExternalAIUnavailableError("Appraiser request failed") from exc
+
+        try:
+            return json.loads(response.text)
+        except Exception as exc:
+            raise ExternalAIResponseError("Appraiser returned invalid JSON") from exc
 
     def _construct_prompt(self, similar_item_descriptions: list) -> str:
         """与えられた特徴、査定理由、価格のリストを、プロンプト内のテーブル形式の文字列に変換する。
