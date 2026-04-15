@@ -42,7 +42,7 @@
   - `backend/app/infra/db/mysql_client.py`
   - `backend/app/infra/db/redis_client.py`
 
-- [ ] 6. ドキュメントと実体のズレ修正
+- [x] 6. ドキュメントと実体のズレ修正
 
 - README が `backend/sql/init_tables.sql` を参照しているが現状存在せず、運用ミスの原因になる。
 - 対象:
