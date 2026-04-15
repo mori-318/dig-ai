@@ -17,7 +17,7 @@
   - `backend/app/api/appraisal_router.py`
   - `backend/app/api/depends.py`
 
-- [ ] 3. 型安全化（dict 境界の縮小）
+- [x] 3. 型安全化（dict 境界の縮小）
 
 - `service/repository/agent` 間が `dict` 前提でつながっており、変更に弱い。
 - Pydantic / TypedDict / DTO で内部 I/O を固定すると、壊れ方が早期に検知できる。

@@ -1,3 +1,4 @@
+from ...schemas.internal_types import SimilarItem
 from ...repositories.brand_repository import BrandRepository
 from ...repositories.category_repository import CategoryRepository
 from ...repositories.item_repository import ItemRepository
@@ -9,7 +10,7 @@ def find_similar_items(
     item_repository: ItemRepository,
     brand_repository: BrandRepository,
     category_repository: CategoryRepository,
-) -> list[dict]:
+) -> list[SimilarItem]:
     """ブランドとカテゴリに基づいて類似商品を検索するツール関数。"""
     if not brand or not category:
         return []
@@ -24,7 +25,7 @@ def find_similar_items(
 
     similar_items = item_repository.find_items(brand_id=brand_id, category_id=category_id)
 
-    result = []
+    result: list[SimilarItem] = []
     for item in similar_items:
         result.append(
             {

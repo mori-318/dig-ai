@@ -1,3 +1,8 @@
+from typing import cast
+
+from ..schemas.internal_types import ItemRecord
+
+
 class ItemRepository:
     """アイテム情報を管理するリポジトリクラス。"""
 
@@ -9,14 +14,14 @@ class ItemRepository:
         brand_id: int | None = None,
         category_id: int | None = None,
         top_n: int = 5,
-    ) -> list[dict]:
+    ) -> list[ItemRecord]:
         """条件に合うアイテムをDBから取得するメソッド。
         Args:
             brand_id (int | None): ブランドID。Noneの場合はブランドを条件に含めない。
             category_id (int | None): カテゴリID。Noneの場合はカテゴリを条件に含めない。
             top_n (int): 取得するアイテムの最大数。
         Returns:
-            list[dict]: 取得したアイテムのリスト。各アイテムは辞書形式で返される。
+            list[ItemRecord]: 取得したアイテムのリスト。
         """
         sql = """
         SELECT
@@ -33,9 +38,9 @@ class ItemRepository:
         with self.mysql_client.cursor() as cursor:
             cursor.execute(sql, params)
             results = list(cursor.fetchall())
-        return results
+        return cast(list[ItemRecord], results)
 
-    def find_by_id(self, item_id: int) -> dict | None:
+    def find_by_id(self, item_id: int) -> ItemRecord | None:
         """アイテムIDからアイテム情報を取得する。"""
         sql = """
         SELECT
@@ -48,7 +53,9 @@ class ItemRepository:
         with self.mysql_client.cursor() as cursor:
             cursor.execute(sql, (item_id,))
             result = cursor.fetchone()
-        return result
+        if result is None:
+            return None
+        return cast(ItemRecord, result)
 
     def create_item(
         self,
@@ -58,7 +65,7 @@ class ItemRepository:
         features_text: str = "",
         appraisal_text: str = "",
         price: int | None = None,
-    ) -> dict:
+    ) -> ItemRecord:
         """アイテムを作成して作成結果を返す。"""
         insert_sql = """
         INSERT INTO items (brand_id, category_id, name, features_text, appraisal_text, price)

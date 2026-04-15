@@ -1,8 +1,10 @@
 import uuid
+from typing import cast
 
 from fastapi import UploadFile
 
 from ..agents import AppraisalAgent
+from ..schemas.internal_types import ServiceAppraisalResult
 from ..schemas.appraisal_schemas import AppraisalResponse, AppraisalResult
 
 
@@ -13,7 +15,11 @@ class AppraisalService:
     def _new_appraisal_id(self) -> str:
         return str(uuid.uuid4())
 
-    def _build_response(self, appraisal_id: str, appraisal_result: dict) -> AppraisalResponse:
+    def _build_response(
+        self,
+        appraisal_id: str,
+        appraisal_result: ServiceAppraisalResult,
+    ) -> AppraisalResponse:
         if appraisal_result["status"] == "done":
             return AppraisalResponse(
                 status=appraisal_result["status"],
@@ -42,4 +48,11 @@ class AppraisalService:
             appraisal_id = self._new_appraisal_id()
         image_bytes = image.file.read()
         appraisal_result = self.appraisal_agent.run(appraisal_id, image_bytes)
-        return self._build_response(appraisal_id, appraisal_result)
+        if appraisal_result.get("status") not in ("done", "retake_required"):
+            raise ValueError(
+                f"Unexpected appraisal status from agent: {appraisal_result.get('status')}"
+            )
+        return self._build_response(
+            appraisal_id,
+            cast(ServiceAppraisalResult, appraisal_result),
+        )
