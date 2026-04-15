@@ -26,7 +26,7 @@
   - `backend/app/repositories/item_repository.py`
   - `backend/app/agents/tools/find_similar_items.py`
 
-- [ ] 4. 状態管理の整合性
+- [x] 4. 状態管理の整合性
 
 - `AppraisalAgent` が `done` を返すケースで Redis `delete` と `set` が混在し、ステート運用ルールが一貫していない。
 - `processing` 状態の寿命・再開条件を仕様化してコードへ反映すべき。

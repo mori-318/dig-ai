@@ -57,7 +57,7 @@ def test_run_done_flow(state_manager):
         ["スウェットシャツ", "ジーンズ"],
     )
     state_manager.set.assert_called()
-    state_manager.delete.assert_called_with("id-1")
+    state_manager.delete.assert_not_called()
 
 
 def test_run_retake_required_at_base_info(state_manager):

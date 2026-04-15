@@ -6,7 +6,8 @@ from redis import Redis
 class AppraisalStateManager:
     """査定状態をRedisに保存・取得するための管理クラス。
 
-    appraisalsの状態をキーごとに保存し、TTLで自動期限切れにする。
+    appraisalsの状態( processing / retake_required / done )をキーごとに保存し、
+    TTLで自動期限切れにする。
     Redisキーは名前空間を付与して衝突を避ける。
     """
 

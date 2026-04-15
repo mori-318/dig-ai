@@ -54,8 +54,20 @@ class AppraisalAgent:
                 resume_from = existing_state.get("retake_required_by")
                 # appraiser再開なら、必要な中間結果を復元
                 if resume_from == "appraiser":
-                    base_info_result = existing_state.get("base_info_result")
-                    similar_items = existing_state.get("similar_items")
+                    restored_base_info = existing_state.get("base_info_result")
+                    restored_similar_items = existing_state.get("similar_items")
+                    # 中間状態が欠落している場合は再開せず、既存状態を返す。
+                    if restored_base_info is None or restored_similar_items is None:
+                        should_return = True
+                        return (
+                            existing_state,
+                            resume_from,
+                            base_info_result,
+                            similar_items,
+                            should_return,
+                        )
+                    base_info_result = restored_base_info
+                    similar_items = restored_similar_items
 
             # それ以外の途中状態は、再開ではなくそのまま返す
             else:
@@ -107,7 +119,10 @@ class AppraisalAgent:
         if should_return and existing_state is not None:
             return existing_state
 
-        self.state_manager.set(appraisal_id, {"status": "processing"})
+        # ポリシー:
+        # - 処理中/再撮影要求/完了の各状態をRedisへ保存する
+        # - done時にも削除せず、TTL内は同一appraisal_idで同結果を返す
+        self.state_manager.set(appraisal_id, {"status": "processing", "appraisal_id": appraisal_id})
 
         # 画像からブランド・カテゴリを抽出（必要な場合のみ）
         if resume_from != "appraiser":
@@ -174,5 +189,5 @@ class AppraisalAgent:
                 "appraisal_reason": appraisal_result.get("appraisal_reason", ""),
             },
         }
-        self.state_manager.delete(appraisal_id)
+        self.state_manager.set(appraisal_id, result)
         return result
