@@ -34,7 +34,7 @@
   - `backend/app/agents/appraisal_agent/appraisal_agent.py`
   - `backend/app/services/appraisal_state_manager.py`
 
-- [ ] 5. DB / 設定の初期化設計
+- [x] 5. DB / 設定の初期化設計
 
 - 環境変数未設定時のバリデーションが薄く、起動時エラーが遅延する。
 - トランザクション / commit の扱いが repository ごとに散在。

@@ -41,10 +41,14 @@ class BrandRepository:
         INSERT INTO brands (name)
         VALUES (%s)
         """
-        with self.mysql_client.cursor() as cursor:
-            cursor.execute(insert_sql, (name,))
-            brand_id = cursor.lastrowid
-        self.mysql_client.commit()
+        try:
+            with self.mysql_client.cursor() as cursor:
+                cursor.execute(insert_sql, (name,))
+                brand_id = cursor.lastrowid
+            self.mysql_client.commit()
+        except Exception:
+            self.mysql_client.rollback()
+            raise
         return self.find_by_id(brand_id)
 
     def suggest_brands(self, q: str, limit: int = 20) -> list[dict]:

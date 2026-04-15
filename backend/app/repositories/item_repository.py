@@ -72,8 +72,12 @@ class ItemRepository:
         VALUES (%s, %s, %s, %s, %s, %s)
         """
         params = (brand_id, category_id, name, features_text, appraisal_text, price)
-        with self.mysql_client.cursor() as cursor:
-            cursor.execute(insert_sql, params)
-            item_id = cursor.lastrowid
-        self.mysql_client.commit()
+        try:
+            with self.mysql_client.cursor() as cursor:
+                cursor.execute(insert_sql, params)
+                item_id = cursor.lastrowid
+            self.mysql_client.commit()
+        except Exception:
+            self.mysql_client.rollback()
+            raise
         return self.find_by_id(item_id)
