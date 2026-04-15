@@ -14,7 +14,7 @@ def state_manager():
 
 def _build_agent(state_manager, find_similar_items, list_categories):
     with patch(
-        "app.agents.appraisal_agent.appralsal_agent.create_gemini_client",
+        "app.agents.appraisal_agent.appraisal_agent.create_gemini_client",
         return_value=MagicMock(),
     ):
         agent = AppraisalAgent(
