@@ -32,9 +32,17 @@ export function useSuggestions(
 ): UseSuggestionsResult {
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const [debouncedQuery, setDebouncedQuery] = useState(query)
 
   useEffect(() => {
-    const queryTrimmed = query.trim()
+    const timer = window.setTimeout(() => {
+      setDebouncedQuery(query)
+    }, 300)
+    return () => window.clearTimeout(timer)
+  }, [query])
+
+  useEffect(() => {
+    const queryTrimmed = debouncedQuery.trim()
     if (!queryTrimmed) {
       setSuggestions([])
       return
@@ -68,11 +76,11 @@ export function useSuggestions(
 
     void fetchSuggestions()
     return () => controller.abort()
-  }, [limit, query, type])
+  }, [debouncedQuery, limit, type])
 
   const shouldShow = useMemo(
-    () => isOpen && query.trim().length > 0 && suggestions.length > 0,
-    [isOpen, query, suggestions.length],
+    () => isOpen && debouncedQuery.trim().length > 0 && suggestions.length > 0,
+    [debouncedQuery, isOpen, suggestions.length],
   )
 
   return {
