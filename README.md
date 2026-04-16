@@ -1,21 +1,38 @@
 # Dig AI
 
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=000)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+
 古着の写真をアップロードし、AIで査定するアプリケーションです。
-管理者向けのアイテム登録画面も備えています。
+管理者向けのアイテム情報登録画面も備えています。
 
 ## 技術スタック
 
-![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.135-009688?logo=fastapi&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-8.4-4479A1?logo=mysql&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
-![uv](https://img.shields.io/badge/uv-Package%20Manager-2A5BFF)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=000)
-![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.2-06B6D4?logo=tailwindcss&logoColor=white)
-![pnpm](https://img.shields.io/badge/pnpm-Frontend-F69220?logo=pnpm&logoColor=white)
-![Docker Compose](https://img.shields.io/badge/Docker_Compose-Local_Dev-2496ED?logo=docker&logoColor=white)
+### バックエンド
+
+- Python / FastAPI: 型安全にAPIを構築しやすく、実装と保守のスピードを両立しやすいため。
+
+### フロントエンド
+
+- TypeScript / React: コンポーネント再利用と型チェックにより、UIの変更を安全に進めやすいため。
+- Vite / Tailwind CSS: 開発サイクルが速く、画面実装を短時間で反復できるため。
+
+### DB
+
+- MySQL: 構造化データを安定して扱え、運用実績が豊富なため。
+- Redis: インラインDBで、査定状態の一時管理など、低レイテンシなアクセスが必要な処理に適しているため。
+
+### AIエージェント
+
+- Google GenAI SDK（使用モデル: `gemini-2.5-flash-lite`）: まずは、LangGraphなどのフレームワークを使わないでLLMエージェントを実装し、エージェントの仕組みについての理解を深め、かつフレームワークなしで実装する難しさを身をもって体験するために、Google GenAI SDKのみでエージェントの実装を行った。
+
+### 環境構築
+
+- Docker Compose: API・DB・Redisを同じ手順で再現でき、環境差分を減らせるため。
+- uv / pnpm: 依存関係の解決が速く、使用経験もあるため。
 
 ## 主な機能
 
@@ -25,8 +42,6 @@
   - 再撮影（retake）フロー
 - 管理者機能（`/admin/items/`）
   - 古着アイテムの登録
-  - ブランド/カテゴリのサジェスト
-  - ブランド/カテゴリの追加
 
 ## ディレクトリ構成
 
@@ -40,8 +55,6 @@ dig-ai/
 │   ├── migrations/
 │   ├── sql/
 │   └── tests/
-├── docs/
-│   └── spec/
 └── frontend/
     └── src/
         ├── features/
@@ -54,11 +67,6 @@ dig-ai/
 ### 前提
 
 - Docker / Docker Compose
-- またはローカル実行の場合:
-  - Python 3.12+
-  - `uv`
-  - Node.js
-  - `pnpm`
 
 ### Dockerで起動（推奨）
 
@@ -78,24 +86,6 @@ docker compose up -d
 ```bash
 docker compose down -v
 docker compose up -d
-```
-
-## ローカル開発
-
-### Backend
-
-```bash
-cd backend
-uv sync
-uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8001
-```
-
-### Frontend
-
-```bash
-cd frontend
-pnpm install
-pnpm dev
 ```
 
 ## DBマイグレーション
@@ -122,9 +112,8 @@ uv run pytest
 - `POST /appraisal/` - 査定開始
 - `POST /appraisal/{appraisal_id}/retake` - 再撮影して再査定
 - `POST /admin/items/` - アイテム登録
-- `GET /admin/items/brands/suggest` - ブランド候補
-- `POST /admin/items/brands` - ブランド作成
-- `GET /admin/items/categories/suggest` - カテゴリ候補
+- `GET /admin/items/brands/suggest` - 途中までの入力でブランド候補取得（アイテム登録補助）
+- `GET /admin/items/categories/suggest` - 途中までの入力でカテゴリ候補取得（アイテム登録補助）
 - `POST /admin/items/categories` - カテゴリ作成
 
 ## 現在の進捗
