@@ -1,3 +1,8 @@
+import {
+  clearValidationMessage,
+  setRequiredValidationMessage,
+} from "./validityHandlers"
+
 type TextareaFieldProps = {
   label: string
   value: string
@@ -20,8 +25,8 @@ function TextareaField({
         className="min-h-24 w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none transition focus:border-slate-500 focus:ring-2 focus:ring-slate-200"
         required={required}
         value={value}
-        onInvalid={(e) => e.currentTarget.setCustomValidity("入力してください")}
-        onInput={(e) => e.currentTarget.setCustomValidity("")}
+        onInvalid={setRequiredValidationMessage}
+        onInput={clearValidationMessage}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
       />

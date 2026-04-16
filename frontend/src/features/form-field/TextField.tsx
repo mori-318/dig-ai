@@ -1,3 +1,8 @@
+import {
+  clearValidationMessage,
+  setRequiredValidationMessage,
+} from "./validityHandlers"
+
 type TextFieldProps = {
   label: string
   value: string
@@ -26,8 +31,8 @@ function TextField({
         inputMode={inputMode}
         required={required}
         value={value}
-        onInvalid={(e) => e.currentTarget.setCustomValidity("入力してください")}
-        onInput={(e) => e.currentTarget.setCustomValidity("")}
+        onInvalid={setRequiredValidationMessage}
+        onInput={clearValidationMessage}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
       />

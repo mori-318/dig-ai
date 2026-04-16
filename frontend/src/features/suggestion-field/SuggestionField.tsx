@@ -1,4 +1,8 @@
 import type { SuggestionItem } from "./useSuggestions"
+import {
+  clearValidationMessage,
+  setRequiredValidationMessage,
+} from "../form-field/validityHandlers"
 
 type SuggestionFieldProps = {
   label: string
@@ -34,8 +38,8 @@ function SuggestionField({
           type="text"
           required={required}
           value={value}
-          onInvalid={(e) => e.currentTarget.setCustomValidity("入力してください")}
-          onInput={(e) => e.currentTarget.setCustomValidity("")}
+          onInvalid={setRequiredValidationMessage}
+          onInput={clearValidationMessage}
           onFocus={onOpen}
           onBlur={() => setTimeout(onClose, 120)}
           onChange={(e) => {
