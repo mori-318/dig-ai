@@ -3,7 +3,7 @@ import { useSuggestions } from "../features/suggestion-field/useSuggestions"
 import SuggestionField from "../features/suggestion-field/SuggestionField"
 import TextField from "../features/form-field/TextField"
 import TextareaField from "../features/form-field/TextareaField"
-import { apiBaseUrl } from "../services/apiBaseUrl"
+import { postJson } from "../services/apiClient"
 
 type ItemInfo = {
   brand: string
@@ -12,6 +12,16 @@ type ItemInfo = {
   featuresText: string
   appraisalText: string
   price: string
+}
+
+type AdminItemResponse = {
+  id: number
+  brand_id: number
+  category_id: number
+  name: string
+  features_text: string | null
+  appraisal_text: string | null
+  price: number | null
 }
 
 const initialFormData: ItemInfo = {
@@ -57,24 +67,18 @@ function AdminPage() {
 
     try {
       setSubmitting(true)
-      const res = await fetch(`${apiBaseUrl}/admin/items/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      await postJson<AdminItemResponse>(
+        "/admin/items/",
+        {
           brand: formData.brand.trim(),
           category: formData.category.trim(),
           name: formData.name.trim(),
           features_text: formData.featuresText.trim(),
           appraisal_text: formData.appraisalText.trim(),
           price: parsedPrice,
-        }),
-      })
-
-      if (!res.ok) {
-        const errorBody = (await res.json().catch(() => null)) as { detail?: string } | null
-        setSubmitError(errorBody?.detail ?? `送信に失敗しました (${res.status})`)
-        return
-      }
+        },
+        "送信に失敗しました",
+      )
 
       setSubmitSuccess("登録しました")
       setFormData(initialFormData)

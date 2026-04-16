@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { apiBaseUrl } from '../services/apiBaseUrl'
+import { postFormData } from '../services/apiClient'
 
 type AppraisalResponse = {
   status: 'done' | 'retake_required'
@@ -43,13 +43,11 @@ function AppraisalPage() {
       const form = new FormData()
       form.append('item_image', targetFile)
 
-      const res = await fetch(`${apiBaseUrl}/appraisal/`, {
-        method: 'POST',
-        body: form,
-      })
-
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
-      const data: AppraisalResponse = await res.json()
+      const data = await postFormData<AppraisalResponse>(
+        '/appraisal/',
+        form,
+        '査定リクエストに失敗しました',
+      )
       setResult(data)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to submit appraisal.')
