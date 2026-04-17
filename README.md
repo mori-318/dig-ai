@@ -98,10 +98,16 @@ docker compose up -d
 
 起動後のアクセス先:
 
-- Frontend: `http://localhost:5173`
-- Backend API: `http://localhost:8001`
+- フロントエンド: `http://localhost:5173`
+- バックエンドAPI: `http://localhost:8001`
+  - バックエンドAPIドキュメント（FastAPI自動生成）: `http://localhost:8001/docs`
 - MySQL: `localhost:3306`
 - Redis: `localhost:6379`
+
+Frontendのページパス:
+
+- 査定ページ: `/`
+- 管理者ページ: `/admin`
 
 初期化からやり直す場合:
 
