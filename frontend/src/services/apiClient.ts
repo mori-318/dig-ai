@@ -47,6 +47,19 @@ export async function postJson<TResponse>(
   )
 }
 
+export async function getJson<TResponse>(
+  path: string,
+  fallbackMessage: string,
+): Promise<TResponse> {
+  return requestJson<TResponse>(
+    path,
+    {
+      method: "GET",
+    },
+    fallbackMessage,
+  )
+}
+
 export async function postFormData<TResponse>(
   path: string,
   formData: FormData,

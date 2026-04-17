@@ -1,18 +1,5 @@
 import React, { useState } from 'react'
-import { postFormData } from '../services/apiClient'
-
-type AppraisalResponse = {
-  status: 'done' | 'retake_required'
-  appraisal_id: string
-  result?: {
-    brand: string
-    category: string
-    appraisal_price: number
-    appraisal_reason: string
-  }
-  retake_message?: string
-  retake_required_by?: 'base_info' | 'appraiser'
-}
+import { requestAppraisal, type AppraisalResponse } from '../services/appraisalApi'
 
 function AppraisalPage() {
   const [targetImage, setTargetImage] = useState<string | null>(null)
@@ -43,11 +30,7 @@ function AppraisalPage() {
       const form = new FormData()
       form.append('item_image', targetFile)
 
-      const data = await postFormData<AppraisalResponse>(
-        '/appraisal/',
-        form,
-        '査定リクエストに失敗しました',
-      )
+      const data = await requestAppraisal(form)
       setResult(data)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to submit appraisal.')

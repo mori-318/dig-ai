@@ -1,4 +1,4 @@
-import type { SuggestionItem } from "./useSuggestions"
+import type { SuggestionItem } from "../../types/suggestion"
 import {
   clearValidationMessage,
   setRequiredValidationMessage,

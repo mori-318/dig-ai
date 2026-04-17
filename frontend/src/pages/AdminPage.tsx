@@ -3,7 +3,7 @@ import { useSuggestions } from "../features/suggestion-field/useSuggestions"
 import SuggestionField from "../features/suggestion-field/SuggestionField"
 import TextField from "../features/form-field/TextField"
 import TextareaField from "../features/form-field/TextareaField"
-import { postJson } from "../services/apiClient"
+import { createAdminItem } from "../services/adminItemsApi"
 
 type ItemInfo = {
   brand: string
@@ -12,16 +12,6 @@ type ItemInfo = {
   featuresText: string
   appraisalText: string
   price: string
-}
-
-type AdminItemResponse = {
-  id: number
-  brand_id: number
-  category_id: number
-  name: string
-  features_text: string | null
-  appraisal_text: string | null
-  price: number | null
 }
 
 const initialFormData: ItemInfo = {
@@ -67,8 +57,7 @@ function AdminPage() {
 
     try {
       setSubmitting(true)
-      await postJson<AdminItemResponse>(
-        "/admin/items/",
+      await createAdminItem(
         {
           brand: formData.brand.trim(),
           category: formData.category.trim(),
@@ -77,7 +66,6 @@ function AdminPage() {
           appraisal_text: formData.appraisalText.trim(),
           price: parsedPrice,
         },
-        "送信に失敗しました",
       )
 
       setSubmitSuccess("登録しました")

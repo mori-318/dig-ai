@@ -1,20 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
-import { apiBaseUrl } from "../../services/apiBaseUrl"
-
-export type SuggestionType = "brands" | "categories"
-
-export type SuggestionItem = {
-  id: number
-  name: string
-}
-
-type SuggestBrandResponse = {
-  brands: SuggestionItem[]
-}
-
-type SuggestCategoryResponse = {
-  categories: SuggestionItem[]
-}
+import { fetchSuggestions } from "../../services/adminItemsApi"
+import type { SuggestionItem, SuggestionType } from "../../types/suggestion"
 
 type UseSuggestionsResult = {
   suggestions: SuggestionItem[]
@@ -49,32 +35,20 @@ export function useSuggestions(
     }
 
     const controller = new AbortController()
-    const fetchSuggestions = async () => {
+    const loadSuggestions = async () => {
       try {
-        const params = new URLSearchParams({ q: queryTrimmed, limit: String(limit) })
-        const path = `/admin/items/${type}/suggest`
-        const res = await fetch(`${apiBaseUrl}${path}?${params.toString()}`, { signal: controller.signal })
-        if (!res.ok) {
-          setSuggestions([])
-          return
+        const nextSuggestions = await fetchSuggestions(queryTrimmed, type, limit)
+        if (!controller.signal.aborted) {
+          setSuggestions(nextSuggestions)
         }
-
-        const data = (await res.json()) as SuggestBrandResponse | SuggestCategoryResponse
-        if (type === "brands" && "brands" in data) {
-          setSuggestions(data.brands ?? [])
-          return
-        }
-        if (type === "categories" && "categories" in data) {
-          setSuggestions(data.categories ?? [])
-          return
-        }
-        setSuggestions([])
       } catch {
-        setSuggestions([])
+        if (!controller.signal.aborted) {
+          setSuggestions([])
+        }
       }
     }
 
-    void fetchSuggestions()
+    void loadSuggestions()
     return () => controller.abort()
   }, [debouncedQuery, limit, type])
 
