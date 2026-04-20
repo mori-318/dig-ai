@@ -98,12 +98,16 @@ dig-ai/
 cp backend/.env.sample backend/.env
 ```
 
-`.envの`以下を環境に合わせて設定してください。
+起動方法によって、主に必要な項目が異なります。
 
-- `MYSQL_HOST`
-- `MYSQL_USER`
-- `MYSQL_DATABASE`
-- `GEMINI_API_KEY`
+- Docker Composeで起動する場合
+  - 必須: `MYSQL_DATABASE`
+  - 必要に応じて: `GEMINI_API_KEY`
+  - 補足: `MYSQL_HOST` / `MYSQL_USER` / `MYSQL_PASSWORD` など一部は `docker-compose.yml` 側で上書きされます。
+
+- ローカルで直接起動する場合（`uv run ...` など）
+  - 必須: `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`
+  - 必要に応じて: `GEMINI_API_KEY`
 
 ### Dockerで起動（推奨）
 
