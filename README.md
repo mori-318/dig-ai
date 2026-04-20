@@ -102,12 +102,12 @@ cp backend/.env.sample backend/.env
 
 - Docker Composeで起動する場合
   - 必須: `MYSQL_DATABASE`
-  - 必要に応じて: `GEMINI_API_KEY`
+  - 査定機能（`/appraisal`）を使う場合は必須: `GEMINI_API_KEY`
   - 補足: `MYSQL_HOST` / `MYSQL_USER` / `MYSQL_PASSWORD` など一部は `docker-compose.yml` 側で上書きされます。
 
 - ローカルで直接起動する場合（`uv run ...` など）
   - 必須: `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`
-  - 必要に応じて: `GEMINI_API_KEY`
+  - 査定機能（`/appraisal`）を使う場合は必須: `GEMINI_API_KEY`
 
 ### Dockerで起動（推奨）
 
