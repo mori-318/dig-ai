@@ -50,7 +50,8 @@ def create_mysql_client(database: str | None = None) -> pymysql.connections.Conn
     mysql_host = _get_required_env("MYSQL_HOST")
     mysql_port = _get_int_env("MYSQL_PORT", 3306)
     mysql_user = _get_required_env("MYSQL_USER")
-    mysql_password = _get_required_env("MYSQL_PASSWORD")
+    # プロトタイプ運用では空パスワードのローカルMySQLを許容する。
+    mysql_password = os.getenv("MYSQL_PASSWORD")
     mysql_database = database or _get_required_env("MYSQL_DATABASE")
 
     return pymysql.connect(
