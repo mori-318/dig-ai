@@ -90,6 +90,21 @@ dig-ai/
 
 - Docker / Docker Compose
 
+### 環境変数（backend）
+
+`backend/.env.sample` をコピーして `.env` を作成してください。
+
+```bash
+cp backend/.env.sample backend/.env
+```
+
+`.envの`以下を環境に合わせて設定してください。
+
+- `MYSQL_HOST`
+- `MYSQL_USER`
+- `MYSQL_DATABASE`
+- `GEMINI_API_KEY`
+
 ### Dockerで起動（推奨）
 
 ```bash
