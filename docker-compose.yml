@@ -2,12 +2,11 @@ services:
   db:
     image: mysql:8.4
     container_name: digai-mysql
-    env_file:
-      - ./backend/.env
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: digai
-      MYSQL_PASSWORD: digai
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
       - "3306:3306"
     volumes:
@@ -40,13 +39,16 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    env_file:
-      - ./backend/.env
     environment:
-      MYSQL_HOST: db
-      MYSQL_USER: digai
-      MYSQL_PASSWORD: digai
-      REDIS_HOST: redis
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_DB: ${REDIS_DB}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     ports:
       - "8001:8001"
     volumes:
@@ -61,7 +63,7 @@ services:
     depends_on:
       - backend
     environment:
-      VITE_API_BASE_URL: http://localhost:8001
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
     ports:
       - "5173:5173"
     volumes:

@@ -90,24 +90,20 @@ dig-ai/
 
 - Docker / Docker Compose
 
-### 環境変数（backend）
+### 環境変数
 
-`backend/.env.sample` をコピーして `.env` を作成してください。
+リポジトリルートの `.env.example` をコピーして `.env` を作成してください。
 
 ```bash
-cp backend/.env.sample backend/.env
+cp .env.example .env
 ```
 
-起動方法によって、主に必要な項目が異なります。
+用途別にセクション分けしています。
 
-- Docker Composeで起動する場合
-  - 必須: `MYSQL_DATABASE`
-  - 査定機能（`/appraisal`）を使う場合は必須: `GEMINI_API_KEY`
-  - 補足: `MYSQL_HOST` / `MYSQL_USER` / `MYSQL_PASSWORD` など一部は `docker-compose.yml` 側で上書きされます。
-
-- ローカルで直接起動する場合（`uv run ...` など）
-  - 必須: `MYSQL_HOST`, `MYSQL_USER`, `MYSQL_PASSWORD`, `MYSQL_DATABASE`
-  - 査定機能（`/appraisal`）を使う場合は必須: `GEMINI_API_KEY`
+- `Backend (Appraisal)`: 査定機能（`/appraisal`）で必要（`GEMINI_API_KEY`）
+- `MySQL (Container bootstrap)`: MySQLコンテナ初期化で使用
+- `Backend runtime`: backendコンテナ接続情報で使用
+- `Frontend`: frontendコンテナで使用
 
 ### Dockerで起動（推奨）
 
