@@ -76,3 +76,15 @@ class CategoryListItem(TypedDict):
 
     id: int
     name: str
+
+
+class UserRecord(TypedDict):
+    """usersテーブル1件分のレコード型。"""
+
+    id: int
+    email: str
+    password_hash: str
+    role: Literal["admin", "user"]
+    is_active: int
+    created_at: datetime
+    updated_at: datetime
