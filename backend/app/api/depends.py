@@ -2,8 +2,9 @@
 
 from fastapi import Request
 
-from ..container import build_admin_item_service
+from ..container import build_admin_item_service, build_auth_service
 from ..services.admin_item_service import AdminItemService
+from ..services.auth_service import AuthService
 from ..services.appraisal_service import AppraisalService
 
 
@@ -37,3 +38,9 @@ def get_appraisal_service(request: Request) -> AppraisalService:
 def get_appraisal_state_manager(request: Request):
     """FastAPIのRequestオブジェクトからAppraisalStateManagerを取得する依存関数。"""
     return request.app.state.appraisal_state_manager
+
+
+def get_auth_service(request: Request) -> AuthService:
+    """リクエストごとにAuthServiceを生成して返す依存関数。"""
+    mysql_client = get_mysql_client(request)
+    return build_auth_service(mysql_client)
