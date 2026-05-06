@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pymysql import MySQLError
 from pymysql.err import IntegrityError
 
-from ..api.depends import get_admin_item_service
+from ..api.depends import get_admin_item_service, require_admin
 from ..schemas.admin_item_schemas import (
     AdminItemResponse,
     Brand,
@@ -17,7 +17,11 @@ from ..schemas.admin_item_schemas import (
 )
 from ..services.admin_item_service import AdminItemService
 
-router = APIRouter(prefix="/admin/items", tags=["admin_items"])
+router = APIRouter(
+    prefix="/admin/items",
+    tags=["admin_items"],
+    dependencies=[Depends(require_admin)],
+)
 
 
 def _raise_db_unavailable(exc: Exception) -> None:

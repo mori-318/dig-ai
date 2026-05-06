@@ -2,12 +2,16 @@
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
-from ..api.depends import get_appraisal_service
+from ..api.depends import get_appraisal_service, get_current_user
 from ..errors import ExternalAIError
 from ..schemas.appraisal_schemas import AppraisalResponse
 from ..services.appraisal_service import AppraisalService
 
-router = APIRouter(prefix="/appraisal", tags=["appraisal"])
+router = APIRouter(
+    prefix="/appraisal",
+    tags=["appraisal"],
+    dependencies=[Depends(get_current_user)],
+)
 
 
 @router.post("/", response_model=AppraisalResponse)
