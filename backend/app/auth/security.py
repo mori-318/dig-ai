@@ -1,6 +1,7 @@
 """認証セキュリティ（パスワードハッシュ・JWT生成/検証）。"""
 
 import os
+from typing import Any
 from datetime import datetime, timedelta, timezone
 
 from jose import JWTError, jwt
@@ -50,17 +51,18 @@ def create_access_token(*, user_id: int, role: str, email: str) -> str:
     now = datetime.now(timezone.utc)
     expire = now + timedelta(minutes=get_access_token_expire_minutes())
 
-    payload: dict[str, any] = {
+    payload: dict[str, Any] = {
         "sub": str(user_id),
         "role": role,
         "email": email,
+        "type": "access",
         "iat": int(now.timestamp()),
         "exp": int(expire.timestamp()),
     }
     return jwt.encode(payload, _get_secret_key(), algorithm=ALGORITHM)
 
 
-def decode_access_token(token: str) -> dict[str, any]:
+def decode_access_token(token: str) -> dict[str, Any]:
     """アクセストークンをデコードする。"""
     try:
         payload = jwt.decode(token, _get_secret_key(), algorithms=[ALGORITHM])
