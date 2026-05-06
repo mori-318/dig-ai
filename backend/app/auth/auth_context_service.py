@@ -1,9 +1,27 @@
 """認証コンテキストの解決と認可判定を行うサービス。"""
 
-from fastapi import HTTPException, status
-
 from ..auth.security import TokenDecodeError, decode_access_token
 from ..repositories.user_repository import UserRepository
+
+
+class AuthContextError(Exception):
+    """認証コンテキスト解決時の基底例外。"""
+
+
+class InvalidTokenError(AuthContextError):
+    """トークン検証に失敗したことを示す例外。"""
+
+
+class InvalidTokenSubjectError(AuthContextError):
+    """トークンのsubクレームが不正であることを示す例外。"""
+
+
+class UserNotFoundOrInactiveError(AuthContextError):
+    """ユーザーが見つからない、または無効であることを示す例外。"""
+
+
+class AdminPrivilegeRequiredError(AuthContextError):
+    """管理者権限が必要であることを示す例外。"""
 
 
 class AuthContextService:
@@ -17,36 +35,21 @@ class AuthContextService:
         try:
             payload = decode_access_token(token)
         except TokenDecodeError as exc:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="invalid token",
-                headers={"WWW-Authenticate": "Bearer"},
-            ) from exc
+            raise InvalidTokenError("invalid token") from exc
 
         user_id_raw = payload.get("sub")
         try:
             user_id = int(user_id_raw)
         except (TypeError, ValueError) as exc:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="invalid token subject",
-                headers={"WWW-Authenticate": "Bearer"},
-            ) from exc
+            raise InvalidTokenSubjectError("invalid token subject") from exc
 
         user = self.user_repository.find_by_id(user_id)
         if user is None or not user["is_active"]:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="user not found or inactive",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise UserNotFoundOrInactiveError("user not found or inactive")
         return user
 
     def ensure_admin(self, user):
         """管理者ユーザーかを検証する。"""
         if user["role"] != "admin":
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="admin privilege required",
-            )
+            raise AdminPrivilegeRequiredError("admin privilege required")
         return user

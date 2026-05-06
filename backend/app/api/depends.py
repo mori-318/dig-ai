@@ -1,9 +1,15 @@
 """FastAPIルーターで共有する依存関係プロバイダー。"""
 
-from fastapi import Depends, Request
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 
-from ..auth.auth_context_service import AuthContextService
+from ..auth.auth_context_service import (
+    AdminPrivilegeRequiredError,
+    AuthContextService,
+    InvalidTokenError,
+    InvalidTokenSubjectError,
+    UserNotFoundOrInactiveError,
+)
 from ..container import build_admin_item_service, build_auth_service
 from ..repositories.user_repository import UserRepository
 from ..services.admin_item_service import AdminItemService
@@ -58,16 +64,40 @@ def _build_auth_context_service(request: Request) -> AuthContextService:
     return AuthContextService(user_repository)
 
 
-def get_current_user(request: Request, token: str = Depends(oauth2_scheme)):
-    """Bearerトークンを検証し、現在のユーザーを返す依存関数。"""
-    auth_context_service = _build_auth_context_service(request)
-    return auth_context_service.resolve_current_user(token)
+def get_auth_context_service(request: Request) -> AuthContextService:
+    """リクエストごとにAuthContextServiceを生成して返す依存関数。"""
+    return _build_auth_context_service(request)
+
+
+def get_bearer_token(token: str = Depends(oauth2_scheme)) -> str:
+    """AuthorizationヘッダーからBearerトークン文字列を取得する依存関数。"""
+    return token
+
+
+def get_current_user(
+    auth_context_service: AuthContextService = Depends(get_auth_context_service),
+    token: str = Depends(get_bearer_token),
+):
+    """現在ユーザーを取得し、認証エラーを401に変換する。"""
+    try:
+        return auth_context_service.resolve_current_user(token)
+    except (InvalidTokenError, InvalidTokenSubjectError, UserNotFoundOrInactiveError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(exc),
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
 
 
 def require_admin(
-    request: Request,
+    auth_context_service: AuthContextService = Depends(get_auth_context_service),
     current_user=Depends(get_current_user),
 ):
-    """現在ユーザーが管理者か検証する依存関数。"""
-    auth_context_service = _build_auth_context_service(request)
-    return auth_context_service.ensure_admin(current_user)
+    """管理者ユーザーを要求し、権限エラーを403に変換する。"""
+    try:
+        return auth_context_service.ensure_admin(current_user)
+    except AdminPrivilegeRequiredError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(exc),
+        ) from exc
